@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "423013973719",
+    "project_id": "livestreaming-3fad8",
+    "storage_bucket": "livestreaming-3fad8.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:423013973719:android:4dfb8c63e1f3e580c87a92",
+        "android_client_info": {
+          "package_name": "com.example.live_streaming"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCu-LnZRCvEC5F0xeYE7rp8kp0dOki9z9s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
