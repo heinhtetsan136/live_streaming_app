@@ -417,13 +417,20 @@ class _LiveStreamVideoViewState extends State<LiveStreamVideoView> {
           if (widget.service is AgoraHostService) {
             return AgoraVideoView(
               onAgoraVideoViewCreated: (uid) => print("aavvc is $uid"),
-              controller: widget.service.controller,
+              controller: widget.service.videoViewcontroller,
             );
           }
           if (widget.service.connection != null) {
             return AgoraVideoView(
               onAgoraVideoViewCreated: (uid) => print("aavvc is $uid"),
-              controller: widget.service.controller,
+              controller: widget.service is AgoraHostService
+                  ? widget.service.videoViewcontroller
+                  : VideoViewController.remote(
+                      rtcEngine: widget.service.engine,
+                      canvas: VideoCanvas(
+                        uid: widget.service.connection!.remoteId,
+                      ),
+                      connection: widget.service.connection!.connection),
             );
           }
           return const Center(

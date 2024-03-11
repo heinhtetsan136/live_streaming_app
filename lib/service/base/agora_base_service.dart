@@ -18,6 +18,13 @@ Future requestPermission() async {
   }
 }
 
+class AgoraLiveConnection {
+  final RtcConnection connection;
+  final int remoteId;
+
+  AgoraLiveConnection({required this.connection, required this.remoteId});
+}
+
 // ignore: non_constant_identifier_names
 class AgoraHandler {
   final void Function(RtcConnection connection, int remoteUid, int elapsed)
@@ -96,7 +103,7 @@ abstract class AgoraBaseService {
   }
 
   String get appid => "e8c618eaf31d45728bc22f12d62c8c02";
-  VideoViewController get controller;
+  VideoViewController get videoViewcontroller;
   ChannelProfileType get channelprofile =>
       ChannelProfileType.channelProfileLiveBroadcasting;
   Future<void> init() async {
@@ -111,10 +118,10 @@ abstract class AgoraBaseService {
     _state = 1;
   }
 
-  RtcConnection? connection;
+  AgoraLiveConnection? connection;
   late final RtcEngineEventHandler _handler;
-  StreamController<RtcConnection> onLive =
-      StreamController<RtcConnection>.broadcast();
+  StreamController<AgoraLiveConnection> onLive =
+      StreamController<AgoraLiveConnection>.broadcast();
   set handler(AgoraHandler h) {
     _handler = RtcEngineEventHandler(onError: ((err, msg) {
       h.onError!(err, msg);
@@ -122,8 +129,8 @@ abstract class AgoraBaseService {
     }), onUserJoined: (con, remoteuid, _) {
       _logger.i("[Stream:On User Joined] [onuserjoined]$remoteuid");
       //To Do
-      connection = con;
-      onLive.sink.add(con);
+      connection = AgoraLiveConnection(connection: con, remoteId: remoteuid);
+      onLive.sink.add(connection!);
       h.onUserJoined(con, remoteuid, _);
     }, onUserOffline: (con, uid, reason) {
       _logger.i("[Stream:onuseroffline] [onuseroffline]$uid $con $reason");
@@ -137,7 +144,6 @@ abstract class AgoraBaseService {
       h.onLeaveChannel(conn, status);
       _logger.i("[Stream:onleave] [onleave]$conn $status ");
     }, onJoinChannelSuccess: (connection, uId) {
-      onLive.sink.add(connection);
       _logger.i(
           "[Stream:onjoinchannelsucess] [onjoinchannelsucess]$uId [conntection]$connection");
       h.onJoinChannelSuccess(connection, uId);

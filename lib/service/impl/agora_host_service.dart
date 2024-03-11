@@ -28,7 +28,7 @@ class AgoraHostService extends AgoraBaseService {
 
   @override
   // TODO: implement controller
-  VideoViewController get controller => VideoViewController(
+  VideoViewController get videoViewcontroller => VideoViewController(
       rtcEngine: engine,
       canvas: const VideoCanvas(
           //local userid -0
