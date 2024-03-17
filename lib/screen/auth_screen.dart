@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:live_streaming/locator.dart';
+import 'package:live_streaming/service/base/agora_base_service.dart';
 import 'package:lottie/lottie.dart';
 import 'package:starlight_utils/starlight_utils.dart';
 
@@ -50,6 +51,8 @@ class AuthScreen extends StatelessWidget {
                         Locator<FirebaseAuth>().signInWithCredential(
                             GoogleAuthProvider.credential(
                                 accessToken: authentication?.accessToken));
+                        Locator<FirebaseAuth>().currentUser?.getIdToken().then(
+                            (value) => AgoraBaseService.logger.i(value ?? ""));
                       },
                       child: const Text("Login with google")),
                 ),

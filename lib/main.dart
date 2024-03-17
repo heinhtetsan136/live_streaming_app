@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:live_streaming/controller/live_view-controller/live_view_cubit.dart';
 import 'package:live_streaming/locator.dart';
-import 'package:live_streaming/screen/live_stream_screen.dart';
+import 'package:live_streaming/screen/auth_screen.dart';
 import 'package:live_streaming/service/base/agora_base_service.dart';
 import 'package:live_streaming/service/impl/agora_host_service.dart';
 
@@ -24,9 +24,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [BlocProvider(create: (_) => LiveViewCubit())],
-      child: MaterialApp(
-        home: LiveStreamScreen(agoraBaseService: service),
-        // home: AuthScreen(),
+      child: const MaterialApp(
+        // home: LiveStreamScreen(agoraBaseService: service),
+        home: AuthScreen(),
       ),
     );
   }

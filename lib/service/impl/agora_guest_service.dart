@@ -36,4 +36,11 @@ class AgoraGuestService extends AgoraBaseService {
   @override
   // TODO: implement clientRole
   ClientRoleType get clientRole => ClientRoleType.clientRoleAudience;
+
+  @override
+  Future<void> dispose() async {
+    // TODO: implement dispose
+    await onLive.close();
+    AgoraGuestService._instance == null;
+  }
 }
