@@ -39,12 +39,14 @@ dependencies:
   agora_rtc_engine: ^6.2.6
   permission_handler: ^11.3.0
   get_it: ^7.6.7
+  cached_network_image: ^3.3.1
   logger: ^2.0.2+1
   firebase_auth: ^4.17.6
   firebase_core: ^2.25.5
   firebase_app_check: ^0.2.1+15
   google_sign_in: ^6.2.1
   lottie: ^3.1.0
+  google_nav_bar: ^5.0.6
   flutter_login_facebook:
 
 

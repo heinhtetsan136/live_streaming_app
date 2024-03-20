@@ -1,16 +1,20 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:live_streaming/locator.dart';
-import 'package:live_streaming/service/base/agora_base_service.dart';
+import 'package:live_streaming/controller/auth_controller/auth_bloc.dart';
+import 'package:live_streaming/controller/auth_controller/auth_event.dart';
+import 'package:live_streaming/controller/auth_controller/auth_state.dart';
+import 'package:logger/logger.dart';
 import 'package:lottie/lottie.dart';
 import 'package:starlight_utils/starlight_utils.dart';
 
 class AuthScreen extends StatelessWidget {
   const AuthScreen({super.key});
-
+  static final _logger = Logger();
   @override
   Widget build(BuildContext context) {
+    final AuthBloc authBloc = context.read<AuthBloc>();
     final google = GoogleSignIn.standard();
     return Scaffold(
       body: Stack(
@@ -41,18 +45,19 @@ class AuthScreen extends StatelessWidget {
                               RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10)))),
                       onPressed: () async {
-                        await google.signOut();
-                        final GoogleSignInAccount? account =
-                            await google.signIn();
-                        final GoogleSignInAuthentication? authentication =
-                            await account?.authentication;
-                        authentication?.idToken;
+                        authBloc.add(const LoginWithGoogleEvent());
+                        // await google.signOut();
+                        // final GoogleSignInAccount? account =
+                        //     await google.signIn();
+                        // final GoogleSignInAuthentication? authentication =
+                        //     await account?.authentication;
+                        // authentication?.idToken;
 
-                        Locator<FirebaseAuth>().signInWithCredential(
-                            GoogleAuthProvider.credential(
-                                accessToken: authentication?.accessToken));
-                        Locator<FirebaseAuth>().currentUser?.getIdToken().then(
-                            (value) => AgoraBaseService.logger.i(value ?? ""));
+                        // Locator<FirebaseAuth>().signInWithCredential(
+                        //     GoogleAuthProvider.credential(
+                        //         accessToken: authentication?.accessToken));
+                        // Locator<FirebaseAuth>().currentUser?.getIdToken().then(
+                        //     (value) => AgoraBaseService.logger.i(value ?? ""));
                       },
                       child: const Text("Login with google")),
                 ),
@@ -74,6 +79,20 @@ class AuthScreen extends StatelessWidget {
           //             child: const Text("Login with facebook")),
           //       ),
           //     ))
+          BlocBuilder<AuthBloc, LoginState>(builder: (_, state) {
+            _logger.e(state.toString());
+            if (state is LoginLoadingState) {
+              Container(
+                width: context.width,
+                height: context.height,
+                color: const Color.fromRGBO(255, 255, 255, 0.1),
+                child: const Center(
+                  child: CupertinoActivityIndicator(),
+                ),
+              );
+            }
+            return const SizedBox();
+          })
         ],
       ),
       //     body: Center(
