@@ -1,7 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:live_streaming/controller/live_view-controller/live_view_cubit.dart';
 import 'package:live_streaming/controller/live_view-controller/live_view_state.dart';
+import 'package:live_streaming/locator.dart';
 import 'package:live_streaming/models/comment.dart';
 import 'package:live_streaming/screen/view/live_stream_view.dart';
 import 'package:live_streaming/service/base/agora_base_service.dart';
@@ -25,6 +27,10 @@ class LiveStreamScreen extends StatefulWidget {
 class _LiveStreamScreenState extends State<LiveStreamScreen> {
   @override
   Widget build(BuildContext context) {
+    Locator<FirebaseAuth>()
+        .currentUser
+        ?.getIdToken()
+        .then((value) => AgoraBaseService.logger.d(value ?? ""));
     const double kVideoRadius = 20.0;
     final screenHeight = context.height;
     return Scaffold(

@@ -44,7 +44,7 @@ class AuthService {
       Locator<FirebaseAuth>()
           .currentUser
           ?.getIdToken()
-          .then((value) => AgoraBaseService.logger.i(value ?? ""));
+          .then((value) => AgoraBaseService.logger.d(value ?? ""));
       return Result(data: result);
     } on FirebaseAuthException catch (e) {
       return Result(error: GeneralError(e.code, e.stackTrace));

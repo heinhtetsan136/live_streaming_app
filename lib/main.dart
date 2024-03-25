@@ -7,6 +7,7 @@ import 'package:live_streaming/router/router.dart';
 import 'package:live_streaming/service/base/agora_base_service.dart';
 import 'package:live_streaming/service/impl/agora_host_service.dart';
 import 'package:live_streaming/themes/light_theme.dart';
+import 'package:starlight_utils/starlight_utils.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,7 +32,7 @@ class MyApp extends StatelessWidget {
       providers: [BlocProvider(create: (_) => LiveViewCubit())],
       child: MaterialApp(
         // home: LiveStreamScreen(agoraBaseService: service),
-
+        navigatorKey: StarlightUtils.navigatorKey,
         onGenerateRoute: router,
         initialRoute: RouteNames.auth,
         theme: appLightTheme.theme,
