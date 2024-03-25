@@ -1,73 +1,84 @@
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:live_streaming/controller/live_stream_controller/live_stream_bloc.dart';
+import 'package:live_streaming/locator.dart';
 import 'package:live_streaming/service/base/agora_base_service.dart';
 import 'package:live_streaming/service/impl/agora_host_service.dart';
 
-class LiveStreamVideoView extends StatefulWidget {
+///Stateless
+class LiveStreamVideo extends StatefulWidget {
+  //BLOC
   final AgoraBaseService service;
-  const LiveStreamVideoView({super.key, required this.service});
+  const LiveStreamVideo({
+    super.key,
+    required this.service,
+  });
 
   @override
-  State<LiveStreamVideoView> createState() => _LiveStreamVideoViewState();
+  State<LiveStreamVideo> createState() => _LiveStreamVideoState();
 }
 
-class _LiveStreamVideoViewState extends State<LiveStreamVideoView> {
+class _LiveStreamVideoState extends State<LiveStreamVideo> {
+  // late final T liveStreamBloc = context.read<T>();
+
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     init();
+  }
+
+  Future<void> init() async {
+    await widget.service.init();
+
+    widget.service.handler = AgoraHandler.fast();
+
+    await widget.service.ready();
+
+    final payload = Locator<LiveStreamBloc>().payload!;
+
+    await widget.service.live(
+      payload.token,
+      payload.channel,
+      payload.userID,
+    );
   }
 
   @override
   void dispose() {
     widget.service.close();
-    // TODO: implement dispose
     super.dispose();
-  }
-
-  Future<void> init() async {
-    await widget.service.init();
-    widget.service.handler = AgoraHandler.fast();
-    // widget.service.handler = AgoraHandler(
-    //     onError: (msg, str) {},
-    //     onLeaveChannel: (connection, status) {},
-    //     onRejoinChannelSuccess: (connection, _) {},
-    //     onUserJoined: (con, remoteUid, _) {},
-    //     onUserOffline: (con, remoteuid, _) {},
-    //     onJoinChannelSuccess: (con, _) {},
-    //     onTokenPrivilegeWillExpire: (con, token) {});
-    await widget.service.ready();
-    await widget.service.live("lkjkj", "test");
   }
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-        stream: widget.service.onLive.stream,
-        builder: (_, snap) {
-          if (widget.service is AgoraHostService) {
-            return AgoraVideoView(
-              onAgoraVideoViewCreated: (uid) => print("aavvc is $uid"),
-              controller: widget.service.videoViewcontroller,
-            );
-          }
-          if (widget.service.connection != null) {
-            return AgoraVideoView(
-              onAgoraVideoViewCreated: (uid) => print("aavvc is $uid"),
-              controller: widget.service is AgoraHostService
-                  ? widget.service.videoViewcontroller
-                  : VideoViewController.remote(
-                      rtcEngine: widget.service.engine,
-                      canvas: VideoCanvas(
-                        uid: widget.service.connection!.remoteId,
-                      ),
-                      connection: widget.service.connection!.connection),
-            );
-          }
-          return const Center(
-            child: CircularProgressIndicator(),
+      stream: widget.service.onLive.stream,
+      builder: (_, snp) {
+        if (widget.service is AgoraHostService) {
+          return AgoraVideoView(
+            controller: widget.service.videoViewcontroller,
           );
-        });
+        }
+        final conn = widget.service.connection;
+        if (conn == null) {
+          return const Center(
+            child: CupertinoActivityIndicator(),
+          );
+        }
+
+        return AgoraVideoView(
+          controller: widget.service is AgoraHostService
+              ? widget.service.videoViewcontroller
+              : VideoViewController.remote(
+                  rtcEngine: widget.service.engine,
+                  canvas: VideoCanvas(
+                    uid: conn.remoteId,
+                  ),
+                  connection: conn.connection,
+                ),
+        );
+      },
+    );
   }
 }

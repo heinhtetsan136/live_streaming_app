@@ -1,14 +1,13 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:live_streaming/controller/live_stream_controller/live_stream_state.dart';
 import 'package:live_streaming/controller/live_view-controller/live_view_cubit.dart';
 import 'package:live_streaming/controller/live_view-controller/live_view_state.dart';
-import 'package:live_streaming/locator.dart';
 import 'package:live_streaming/models/comment.dart';
-import 'package:live_streaming/screen/view/live_stream_view.dart';
+import 'package:live_streaming/screen/view/live_stream_full_screen_view.dart';
 import 'package:live_streaming/service/base/agora_base_service.dart';
-import 'package:live_streaming/widget/live_comment.dart';
-import 'package:starlight_utils/starlight_utils.dart';
+import 'package:live_streaming/service/impl/agora_host_service.dart';
 
 const kVideoRadius = 20.0;
 const kBgColor = Color.fromRGBO(45, 40, 42, 1);
@@ -16,300 +15,166 @@ final border = OutlineInputBorder(
   borderRadius: BorderRadius.circular(kVideoRadius),
 );
 
-class LiveStreamScreen extends StatefulWidget {
-  final AgoraBaseService agoraBaseService;
-  const LiveStreamScreen({super.key, required this.agoraBaseService});
+class LiveStreamScreen extends StatelessWidget {
+  final AgoraBaseService service;
 
-  @override
-  State<LiveStreamScreen> createState() => _LiveStreamScreenState();
-}
+  const LiveStreamScreen({
+    super.key,
+    required this.service,
+  });
 
-class _LiveStreamScreenState extends State<LiveStreamScreen> {
   @override
   Widget build(BuildContext context) {
-    Locator<FirebaseAuth>()
-        .currentUser
-        ?.getIdToken()
-        .then((value) => AgoraBaseService.logger.d(value ?? ""));
-    const double kVideoRadius = 20.0;
-    final screenHeight = context.height;
+    if (service is AgoraHostService) {
+      return Scaffold(
+        body: LiveStreamFullScreenView(
+          service: service,
+        ),
+      );
+    }
+
+    ///Guest
     return Scaffold(
-      body: ViewPortBuilder(minimized: (context) {
-        return Column(
-          children: [
-            Stack(children: [
-              SizedBox(
-                width: context.width,
-                height: context.height * 0.3,
-                child: LiveStreamVideoView(service: widget.agoraBaseService),
-                // decoration: const BoxDecoration(
-                //   image: DecorationImage(
-                //       fit: BoxFit.cover,
-                //       image: NetworkImage(
-                //           "https://th.bing.com/th/id/R.3c1dd9a48beba7547417fb546fba5b8d?rik=9B0iVSi%2bYi9wRA&riu=http%3a%2f%2fgetwallpapers.com%2fwallpaper%2ffull%2f0%2f7%2f3%2f820767-full-hd-nature-wallpapers-1920x1080-for-meizu.jpg&ehk=BGgL4g9sk2uysoCXn6sslXVXvfyXDH16ISeI2ZB475o%3d&risl=&pid=ImgRaw&r=0")),
-                //   borderRadius: BorderRadius.only(
-                //       bottomLeft: Radius.circular(kVideoRadius),
-                //       bottomRight: Radius.circular(kVideoRadius)),
-                // ),
-              ),
-              // LiveStreamVideo<T>(
-              //   service: service,
-              // ),
-              Positioned(
-                left: 20,
-                right: 20,
-                top: 30,
-                child: Container(
-                  height: 50,
-                  color: const Color.fromRGBO(0, 0, 0, 0.1),
-                  width: context.width,
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          LiveRemark(),
-                          SizedBox(
-                            width: 30,
-                          ),
-                          // StreamBuilder(
-                          //   stream: bloc.service.viewCount,
-                          //   builder: (_, snap) {
-                          //     return LiveCount(
-                          //       count: snap.data?.toString() ?? '0',
-                          //     );
-                          //   },
-                          // ),
-                          LiveCount()
-                        ],
-                      ),
-                      LiveViewToggle(),
-                    ],
-                  ),
-                ),
-              ),
-            ]),
-            Container(
-              color: Colors.red,
-              height: screenHeight * 0.25,
-            ),
-            const Expanded(child: CommentSection()),
-            // Container(
-            //   color: Colors.blue,
-            //   height: screenHeight * 0.45,
-            // )
-          ],
-        );
-      }, fullscreen: (context) {
-        return Stack(
-          children: [
-            SizedBox(
-              width: context.width,
-              height: context.height,
-              child: LiveStreamVideoView(service: widget.agoraBaseService),
-              // decoration: const BoxDecoration(
-              //   image: DecorationImage(
-              //       fit: BoxFit.cover,
-              //       image: NetworkImage(
-              //           "https://th.bing.com/th/id/R.3c1dd9a48beba7547417fb546fba5b8d?rik=9B0iVSi%2bYi9wRA&riu=http%3a%2f%2fgetwallpapers.com%2fwallpaper%2ffull%2f0%2f7%2f3%2f820767-full-hd-nature-wallpapers-1920x1080-for-meizu.jpg&ehk=BGgL4g9sk2uysoCXn6sslXVXvfyXDH16ISeI2ZB475o%3d&risl=&pid=ImgRaw&r=0")),
-              //   borderRadius: BorderRadius.only(
-              //       bottomLeft: Radius.circular(kVideoRadius),
-              //       bottomRight: Radius.circular(kVideoRadius)),
-              // ),
-            ),
-            Positioned(
-              left: 20,
-              right: 20,
-              top: 30,
-              child: Container(
-                height: 50,
-                color: const Color.fromRGBO(0, 0, 0, 0.1),
-                width: context.width,
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        LiveRemark(),
-                        SizedBox(
-                          width: 30,
-                        ),
-                        // StreamBuilder(
-                        //   stream: bloc.service.viewCount,
-                        //   builder: (_, snap) {
-                        //     return LiveCount(
-                        //       count: snap.data?.toString() ?? '0',
-                        //     );
-                        //   },
-                        // ),
-                        LiveCount(),
-                      ],
-                    ),
-                    LiveViewToggle(),
-                    // LiveViewToggle(),
-                  ],
-                ),
-              ),
-            ),
-            const Positioned(bottom: 10, child: CommentSection())
-          ],
-        );
-      }),
+      backgroundColor: kBgColor,
+      body: LiveStreamFullScreenView(service: service),
+      // body: BlocConsumer<, LiveStreamBaseState>(
+      //   listener: (context, state) {
+      //     ///
+      //   },
+      //   builder: (context, state) {
+      //     if (state is LiveStreamGuestJoinedState) {
+      //       return LiveStreamFullScreenView<LiveStreamGuestBloc>(
+      //         service: service,
+      //       );
+      //     }
+      //     if (state is LiveStreamGuestFailedToJoinState) {
+      //       return Center(
+      //         child: Text(state.message),
+      //       );
+      //     }
+      //     return const Center(
+      //       child: CupertinoActivityIndicator(),
+      //     );
+
+      //     // return ViewPortBuilder(
+      //     //   fullScreen: (context) {
+      //     //     return LiveStreamFullScreenView(
+      //     //       service: service,
+      //     //     );
+      //     //   },
+      //     //   minimized: (context) {
+      //     //     return LiveStreamMinizedScreenView(service: service);
+      //     //   },
+      //     // );
+      //   },
+      // ),
     );
   }
 }
 
-class LiveCount extends StatelessWidget {
-  const LiveCount({super.key});
+//3850026755
+class CommentSection extends StatelessWidget {
+  final Widget Function(BuildContext, Comments)? builder;
+  final double commentSectionWidth, commentSectionHeight;
+  final Color? backgroundColor;
+  final BorderRadiusGeometry? borderRadius;
+  const CommentSection({
+    super.key,
+    required this.commentSectionWidth,
+    required this.commentSectionHeight,
+    this.borderRadius,
+    this.backgroundColor,
+    this.builder,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return const Row(
-      children: [
-        Icon(
-          Icons.person,
-          size: 16,
-          color: Colors.white,
-        ),
-        Padding(
-          padding: EdgeInsets.all(8.0),
-          child: Text(
-            "2.5 k",
-            style: TextStyle(color: Colors.white),
+    return Container(
+      width: commentSectionWidth,
+      height: commentSectionHeight,
+      decoration: BoxDecoration(
+        borderRadius: borderRadius ??
+            const BorderRadius.only(
+              topLeft: Radius.circular(kVideoRadius),
+              topRight: Radius.circular(kVideoRadius),
+            ),
+        color: backgroundColor ?? Colors.black.withOpacity(0.7),
+      ),
+      child: Stack(
+        children: [
+          // LiveComments(
+          //   builder: builder != null
+          //       ? builder!
+          //       : (_, comment) {
+          //           return CommentBox(
+          //             padding: const EdgeInsets.symmetric(
+          //               horizontal: 20,
+          //             ),
+          //             comment: comment,
+          //           );
+          //         },
+          // ),
+          Positioned(
+            bottom: 20,
+            left: 20,
+            right: 20,
+
+            ///Home Work
+            child: TextField(
+              minLines: 1,
+              maxLines: 3,
+              keyboardType: TextInputType.multiline,
+              style: const TextStyle(
+                color: Colors.white,
+                letterSpacing: 1.2,
+              ),
+              decoration: InputDecoration(
+                hintText: "Type here...",
+                hintStyle: const TextStyle(
+                  color: Colors.white60,
+                  fontWeight: FontWeight.w500,
+                ),
+                suffixIcon: IconButton(
+                  onPressed: () {},
+                  icon: const Icon(Icons.send),
+                ),
+                contentPadding: const EdgeInsets.only(
+                  top: 20,
+                  left: 20,
+                  right: 20,
+                  bottom: 20,
+                ),
+                fillColor: kBgColor.withOpacity(0.8),
+                filled: true,
+                border: border,
+                focusedBorder: border,
+              ),
+            ),
           ),
-        ),
-      ],
-    );
-  }
-}
-
-class LiveRemark extends StatelessWidget {
-  const LiveRemark({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          margin: const EdgeInsets.only(right: 10),
-          width: 10,
-          height: 10,
-          decoration: const BoxDecoration(
-              shape: BoxShape.circle, color: Color.fromARGB(255, 141, 18, 18)),
-        ),
-        const Text(
-          "Live",
-          style: TextStyle(fontWeight: FontWeight.w600, color: Colors.white),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
 
 class ViewPortBuilder extends StatelessWidget {
-  final Widget Function(BuildContext context) fullscreen;
+  final Widget Function(BuildContext context) fullScreen;
   final Widget Function(BuildContext context) minimized;
   const ViewPortBuilder({
     super.key,
-    required this.fullscreen,
+    required this.fullScreen,
     required this.minimized,
   });
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<LiveViewCubit, LiveViewBaseState>(builder: (_, state) {
-      print("state is $state");
-      if (state is MaximizedScreen) return fullscreen(context);
-      return minimized(context);
-    });
-  }
-}
-
-class LiveViewToggle extends StatelessWidget {
-  const LiveViewToggle({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<LiveViewCubit, LiveViewBaseState>(builder: (_, state) {
-      return IconButton(
-        onPressed: () {
-          context.read<LiveViewCubit>().toggle();
-        },
-        icon: Icon(
-          state is MinimizedScreen
-              ? Icons.view_in_ar_outlined
-              : Icons.compare_arrows,
-          color: Colors.white,
-        ),
-      );
-    });
-  }
-}
-
-class CommentSection extends StatelessWidget {
-  final Widget Function(BuildContext, Comments)? builders;
-
-  const CommentSection({super.key, this.builders});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: context.width,
-      height: context.height * 0.45,
-      decoration: BoxDecoration(
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(kVideoRadius),
-          topRight: Radius.circular(kVideoRadius),
-        ),
-        color: Colors.black.withOpacity(0.7),
-      ),
-      child: Stack(
-        children: [
-          LiveComment(
-            builder: builders != null
-                ? builders!
-                : (_, comment) {
-                    return CommentBox(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                      ),
-                      comment: comment,
-                    );
-                  },
-          ),
-          Positioned(
-              bottom: 20,
-              left: 20,
-              right: 20,
-              child: TextField(
-                minLines: 1,
-                maxLength: 3,
-                keyboardType: TextInputType.multiline,
-                style: const TextStyle(color: Colors.white, letterSpacing: 1.2),
-                decoration: InputDecoration(
-                  hintText: "Type here ...",
-                  hintStyle: const TextStyle(
-                    color: Colors.white60,
-                    fontWeight: FontWeight.w500,
-                  ),
-                  suffixIcon: IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.send),
-                  ),
-                  contentPadding: const EdgeInsets.only(
-                    top: 20,
-                    left: 20,
-                    right: 20,
-                    bottom: 20,
-                  ),
-                  fillColor: kBgColor.withOpacity(0.8),
-                  filled: true,
-                  border: border,
-                  focusedBorder: border,
-                ),
-              ))
-        ],
-      ),
+    return BlocBuilder<LiveViewCubit, LiveViewBaseState>(
+      builder: (_, state) {
+        if (state is MaximizedScreen) {
+          return minimized(context);
+        }
+        return fullScreen(context);
+      },
     );
   }
 }
@@ -371,6 +236,28 @@ class CommentBox extends StatelessWidget {
             ),
           )
         ],
+      ),
+    );
+  }
+}
+
+class LiveViewToggle extends StatelessWidget {
+  const LiveViewToggle({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final bloc = context.read<LiveViewCubit>();
+    return IconButton(
+      onPressed: bloc.toggle,
+      icon: BlocBuilder<LiveViewCubit, LiveViewBaseState>(
+        builder: (_, state) {
+          return Icon(
+            state is MaximizedScreen
+                ? Icons.view_in_ar_outlined
+                : Icons.compare_arrows,
+            color: Colors.white,
+          );
+        },
       ),
     );
   }

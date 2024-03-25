@@ -29,8 +29,8 @@ class AgoraGuestService extends AgoraBaseService {
   VideoViewController get videoViewcontroller => VideoViewController.remote(
       rtcEngine: engine,
       canvas: const VideoCanvas(uid: 611),
-      connection: const RtcConnection(
-        channelId: "test",
+      connection: RtcConnection(
+        channelId: channel,
       ));
 
   @override

@@ -92,12 +92,14 @@ abstract class AgoraBaseService {
     _state = 2;
   }
 
-  Future<void> live(String token, String channelId,
+  String? channel;
+  Future<void> live(String token, String channel,
       [int? uid, ChannelMediaOptions? options]) async {
     assert(status == 2);
+    this.channel = channel;
     await engine.joinChannel(
         token: token,
-        channelId: channelId,
+        channelId: channel,
         uid: uid ?? 0,
         options: options ?? const ChannelMediaOptions());
   }
