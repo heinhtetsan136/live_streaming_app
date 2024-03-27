@@ -7,7 +7,6 @@ import 'package:live_streaming/firebase_options.dart';
 import 'package:live_streaming/service/auth_sevice.dart';
 import 'package:live_streaming/service/impl/agora_guest_service.dart';
 import 'package:live_streaming/service/impl/agora_host_service.dart';
-import 'package:live_streaming/service/live_strem/live_stream_service.dart';
 import 'package:live_streaming/service/post/post_service.dart';
 
 GetIt Locator = GetIt.asNewInstance();
@@ -30,5 +29,5 @@ Future<void> setup() async {
   final dio = Dio();
   Locator.registerLazySingleton(() => dio);
   Locator.registerLazySingleton(() => PostService());
-  Locator.registerLazySingleton(() => LiveStreamHostService());
+  // Locator.registerLazySingleton(() => LiveStreamHostService.instance());
 }

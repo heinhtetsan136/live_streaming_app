@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:live_streaming/controller/live_stream_controller/live_stream_base_bloc.dart';
 import 'package:live_streaming/controller/live_stream_controller/live_stream_bloc.dart';
 import 'package:live_streaming/models/comment.dart';
 import 'package:live_streaming/screen/live_stream_screen.dart';
@@ -18,7 +19,8 @@ Widget _builder(BuildContext context, Comments comment) {
   );
 }
 
-class LiveStreamFullScreenView extends StatelessWidget {
+class LiveStreamFullScreenView<T extends LiveStreamBaseBloc>
+    extends StatelessWidget {
   final AgoraBaseService service;
   const LiveStreamFullScreenView({
     super.key,
@@ -27,13 +29,13 @@ class LiveStreamFullScreenView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bloc = context.read<LiveStreamBloc>();
+    final bloc = context.read<LiveStreamHostBloc>();
     // final commentHeight = context.height * 0.5;
     final screenWidth = context.width;
 
     return Stack(
       children: [
-        LiveStreamVideo(
+        LiveStreamVideo<T>(
           service: service,
         ),
         Positioned(

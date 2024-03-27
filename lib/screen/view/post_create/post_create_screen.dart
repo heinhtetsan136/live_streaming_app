@@ -15,7 +15,8 @@ class PostCreateScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final LiveStreamBloc liveStreamBloc = context.read<LiveStreamBloc>();
+    final LiveStreamHostBloc liveStreamBloc =
+        context.read<LiveStreamHostBloc>();
     // final LiveStreamHostBloc liveStreamBloc =
     //     context.read<LiveStreamHostBloc>();
     return Scaffold(
@@ -61,7 +62,7 @@ class PostCreateScreen extends StatelessWidget {
               hintText: "Type here...",
             ),
           ),
-          BlocConsumer<LiveStreamBloc, LiveStreamBaseState>(
+          BlocConsumer<LiveStreamHostBloc, LiveStreamBaseState>(
             builder: (_, state) {
               _logger.i(state);
               if (state is LiveStreamContentCreateLoadingState) {

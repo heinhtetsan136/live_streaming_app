@@ -36,7 +36,7 @@ class AgoraHostService extends AgoraBaseService {
 
   @override
   // TODO: implement clientRole
-  ClientRoleType get clientRole => ClientRoleType.clientRoleAudience;
+  ClientRoleType get clientRole => ClientRoleType.clientRoleBroadcaster;
 
   @override
   Future<void> dispose() {

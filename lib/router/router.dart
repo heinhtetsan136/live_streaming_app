@@ -14,6 +14,7 @@ import 'package:live_streaming/screen/view/post_create/post_create_screen.dart';
 import 'package:live_streaming/service/auth_sevice.dart';
 import 'package:live_streaming/service/impl/agora_guest_service.dart';
 import 'package:live_streaming/service/impl/agora_host_service.dart';
+import 'package:live_streaming/service/live_strem/live_stream_service.dart';
 
 Route<dynamic>? router(RouteSettings settings) {
   if (Locator<AuthService>().currentuser == null) {
@@ -27,14 +28,14 @@ Route<dynamic>? router(RouteSettings settings) {
       return _routebuilder(
         // const PostCreateScreen(),
         BlocProvider(
-          create: (_) => LiveStreamBloc(),
+          create: (_) => LiveStreamHostBloc(LiveStreamService.instance()),
           child: const PostCreateScreen(),
         ),
         settings,
       );
     case RouteNames.host:
       final value = settings.arguments;
-      if (value is! LiveStreamBloc) {
+      if (value is! LiveStreamHostBloc) {
         return _routebuilder(
             const Scaffold(
               body: Center(
@@ -49,7 +50,8 @@ Route<dynamic>? router(RouteSettings settings) {
               BlocProvider(create: (_) => LiveViewCubit()),
               BlocProvider.value(value: value),
             ],
-            child: LiveStreamScreen(service: Locator<AgoraHostService>()),
+            child: LiveStreamScreen<LiveStreamHostBloc>(
+                service: Locator<AgoraHostService>()),
             // child: LiveStreamScreen<LiveStreamHostBloc>(
             //   service: Locator<AgoraHostService>(),
             // ),

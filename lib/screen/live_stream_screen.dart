@@ -1,7 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:live_streaming/controller/live_stream_controller/live_stream_state.dart';
+import 'package:live_streaming/controller/live_stream_controller/live_stream_base_bloc.dart';
 import 'package:live_streaming/controller/live_view-controller/live_view_cubit.dart';
 import 'package:live_streaming/controller/live_view-controller/live_view_state.dart';
 import 'package:live_streaming/models/comment.dart';
@@ -15,7 +14,7 @@ final border = OutlineInputBorder(
   borderRadius: BorderRadius.circular(kVideoRadius),
 );
 
-class LiveStreamScreen extends StatelessWidget {
+class LiveStreamScreen<T extends LiveStreamBaseBloc> extends StatelessWidget {
   final AgoraBaseService service;
 
   const LiveStreamScreen({
@@ -27,7 +26,7 @@ class LiveStreamScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     if (service is AgoraHostService) {
       return Scaffold(
-        body: LiveStreamFullScreenView(
+        body: LiveStreamFullScreenView<T>(
           service: service,
         ),
       );

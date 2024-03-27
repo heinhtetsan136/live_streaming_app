@@ -71,7 +71,7 @@ abstract class AgoraBaseService {
     engine = createAgoraRtcEngine();
   }
 
-  int _state = _waiting;
+  int _state = 0;
   int get status => _state;
   // Future<void> host() {
   //   return engine.setClientRole(role: ClientRoleType.clientRoleBroadcaster);
@@ -83,19 +83,25 @@ abstract class AgoraBaseService {
   ClientRoleType get clientRole;
   Future<void> ready() async {
     assert(status == 1);
-
+    _state = 2;
     logger.i("Ready");
     engine.registerEventHandler(_handler);
     await engine.setClientRole(role: clientRole);
     await engine.enableVideo();
     await engine.enableAudio();
-    _state = 2;
+
+    logger.i(status);
   }
 
   String? channel;
+  int? uid;
+  String? token;
   Future<void> live(String token, String channel,
       [int? uid, ChannelMediaOptions? options]) async {
+    this.uid = uid!;
+    this.token = token;
     assert(status == 2);
+    // logger.i("Live");
     this.channel = channel;
     await engine.joinChannel(
         token: token,
