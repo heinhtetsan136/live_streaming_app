@@ -8,7 +8,7 @@ import 'package:logger/logger.dart';
 
 class LiveStreamHostBloc
     extends LiveStreamBaseBloc<LiveStreamBaseEvent, LiveStreamBaseState> {
-  LiveStreamService service;
+  LiveStreamHostService service;
   static final _logger = Logger();
   final TextEditingController controller = TextEditingController();
   final FocusNode focusNode = FocusNode();
@@ -16,8 +16,20 @@ class LiveStreamHostBloc
   GlobalKey<FormState>? formkey = GlobalKey();
   @override
   LivePayload? payload;
+  void listen(bool event) {
+    print("start live stream $event");
+    if (!event) {
+      emit(const LiveStreamContentCreateErrorState("failed to lived"));
+      return;
+    }
+    emit(const LiveStreamContentCreateSuccessState());
+  }
+
   LiveStreamHostBloc(this.service)
       : super(const LiveStreamContentCreateInitalState()) {
+    _logger.i(state);
+    service.stream.listen(listen);
+
     on<LiveStreamContentCreateEvent>((event, emit) async {
       if (state is LiveStreamContentCreateLoadingState) return;
       emit(const LiveStreamContentCreateLoadingState());
@@ -30,8 +42,9 @@ class LiveStreamHostBloc
       _logger.i(result.data);
 
       payload = result.data;
-      emit(const LiveStreamContentCreateSuccessState());
-      await service.setup();
+      service.startLiveStream(payload!.liveID);
+      // await service.init();
+      // emit(const LiveStreamContentCreateSuccessState());
     });
   }
   @override

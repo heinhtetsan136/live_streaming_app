@@ -28,7 +28,7 @@ Route<dynamic>? router(RouteSettings settings) {
       return _routebuilder(
         // const PostCreateScreen(),
         BlocProvider(
-          create: (_) => LiveStreamHostBloc(LiveStreamService.instance()),
+          create: (_) => LiveStreamHostBloc(LiveStreamHostService()),
           child: const PostCreateScreen(),
         ),
         settings,
