@@ -2,7 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:live_streaming/controller/auth_controller/auth_event.dart';
 import 'package:live_streaming/controller/auth_controller/auth_state.dart';
 import 'package:live_streaming/locator.dart';
-import 'package:live_streaming/service/auth_sevice.dart';
+import 'package:live_streaming/service/auth_service.dart/auth_sevice.dart';
 import 'package:logger/logger.dart';
 
 class AuthBloc extends Bloc<LoginEvent, LoginState> {

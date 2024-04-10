@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:live_streaming/locator.dart';
-import 'package:live_streaming/service/auth_sevice.dart';
-import 'package:live_streaming/service/live_strem/live_stream_util_service.dart';
+import 'package:live_streaming/service/auth_service.dart/auth_sevice.dart';
+import 'package:live_streaming/service/ui_live_strem/live_stream_util_service.dart';
 
 abstract class LiveStreamBaseService extends LiveStreamUtilService {
   final Dio dio = Locator<Dio>();
@@ -30,6 +30,12 @@ abstract class LiveStreamBaseService extends LiveStreamUtilService {
   void setLiveStreamStatus(bool status) {
     _stream.sink.add(status);
     // LiveStreamBaseService();
+  }
+
+  void comsumeLiveEvent() {
+    super.listen("ViewCount", ((p0) {
+      // super.set
+    }));
   }
 
   @override

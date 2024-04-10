@@ -52,13 +52,14 @@ class AgoraHandler {
   });
   factory AgoraHandler.fast() {
     return AgoraHandler(
-        onError: (_, __) {},
-        onLeaveChannel: (_, __) {},
-        onUserJoined: (_, __, ___) {},
-        onUserOffline: (_, __, ___) {},
-        onJoinChannelSuccess: (_, __) {},
-        onTokenPrivilegeWillExpire: (_, __) {},
-        onRejoinChannelSuccess: (_, __) {});
+      onJoinChannelSuccess: (_, __) {},
+      onUserJoined: (_, __, ___) {},
+      onUserOffline: (_, __, ___) {},
+      onTokenPrivilegeWillExpire: (_, __) {},
+      onRejoinChannelSuccess: (_, __) {},
+      onLeaveChannel: (_, __) {},
+      onError: (_, __) {},
+    );
   }
 }
 
@@ -82,10 +83,10 @@ abstract class AgoraBaseService {
   // }
   ClientRoleType get clientRole;
   Future<void> ready() async {
-    assert(status == 1);
+    assert(status == 1 || _handler != null);
     _state = 2;
     logger.i("Ready");
-    engine.registerEventHandler(_handler);
+    engine.registerEventHandler(_handler!);
     await engine.setClientRole(role: clientRole);
     await engine.enableVideo();
     await engine.enableAudio();
@@ -127,20 +128,22 @@ abstract class AgoraBaseService {
   }
 
   AgoraLiveConnection? connection;
-  late final RtcEngineEventHandler _handler;
+  RtcEngineEventHandler? _handler;
+
   StreamController<AgoraLiveConnection> onLive =
       StreamController<AgoraLiveConnection>.broadcast();
   set handler(AgoraHandler h) {
-    _handler = RtcEngineEventHandler(onError: ((err, msg) {
-      h.onError!(err, msg);
-      logger.e(" [Stream:On Error] [error] $err/n [str] $msg");
-    }), onUserJoined: (con, remoteuid, _) {
+    _handler = RtcEngineEventHandler(onUserJoined: (con, remoteuid, _) {
       logger.i("[Stream:On User Joined] [onuserjoined]$remoteuid");
       //To Do
+      logger.wtf("this is on user joined");
       connection = AgoraLiveConnection(connection: con, remoteId: remoteuid);
       onLive.sink.add(connection!);
       h.onUserJoined(con, remoteuid, _);
-    }, onUserOffline: (con, uid, reason) {
+    }, onError: ((err, msg) {
+      h.onError!(err, msg);
+      logger.e(" [Stream:On Error] [error] $err/n [str] $msg");
+    }), onUserOffline: (con, uid, reason) {
       logger.i("[Stream:onuseroffline] [onuseroffline]$uid $con $reason");
       //To Do
       h.onUserOffline(con, uid, reason);
@@ -164,7 +167,7 @@ abstract class AgoraBaseService {
 
   Future<void> close() async {
     assert(status == 1);
-    engine.unregisterEventHandler(_handler);
+    engine.unregisterEventHandler(_handler!);
     await engine.leaveChannel();
     await engine.release();
   }

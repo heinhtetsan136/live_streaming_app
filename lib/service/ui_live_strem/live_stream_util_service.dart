@@ -1,5 +1,5 @@
 import 'package:live_streaming/locator.dart';
-import 'package:live_streaming/service/auth_sevice.dart';
+import 'package:live_streaming/service/auth_service.dart/auth_sevice.dart';
 import 'package:live_streaming/util/const/post_base_url.dart';
 import 'package:logger/logger.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
@@ -14,6 +14,7 @@ class LiveStreamUtilService {
     _socket ??= socket;
   }
 
+  int _failCount = 0;
   void _runner(Function() callback) {
     Future.delayed(const Duration(milliseconds: 1000), callback);
   }
@@ -58,28 +59,36 @@ class LiveStreamUtilService {
   }
 
   void listen(String event, Function(dynamic) callback) {
+    if (_failCount > 3) return;
     _logger.i("this is listen");
     _logger.i(event);
     _logger.i(_listener);
     _logger.i("socket ${_socket?.connected}");
     if (_socket == null) {
+      _failCount++;
       return _runner(() => listen(event, callback));
     }
     if (_socket?.connected != true) {
+      _failCount++;
       return _runner(() => listen(event, callback));
     }
     if (_listener.contains(event)) return;
+    _failCount = 0;
     _listener.add(event);
     _socket?.on(event, callback);
   }
 
   void emit(String event, dynamic data) {
+    if (_failCount > 3) return;
     if (_socket == null) {
+      _failCount++;
       return _runner(() => emit(event, data));
     }
     if (_socket?.connected != true) {
+      _failCount++;
       return _runner(() => emit(event, data));
     }
+    _failCount = 0;
     Future.delayed(
       const Duration(seconds: 2),
       () => _socket?.emit(event, data),

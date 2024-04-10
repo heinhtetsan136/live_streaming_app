@@ -1,10 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:live_streaming/controller/auth_controller/auth_bloc.dart';
 import 'package:live_streaming/controller/auth_controller/auth_event.dart';
 import 'package:live_streaming/controller/auth_controller/auth_state.dart';
+import 'package:live_streaming/router/route_name.dart';
 import 'package:logger/logger.dart';
 import 'package:lottie/lottie.dart';
 import 'package:starlight_utils/starlight_utils.dart';
@@ -79,20 +81,31 @@ class AuthScreen extends StatelessWidget {
           //             child: const Text("Login with facebook")),
           //       ),
           //     ))
-          BlocBuilder<AuthBloc, LoginState>(builder: (_, state) {
-            _logger.e(state.toString());
-            if (state is LoginLoadingState) {
-              Container(
-                width: context.width,
-                height: context.height,
-                color: const Color.fromRGBO(255, 255, 255, 0.1),
-                child: const Center(
-                  child: CupertinoActivityIndicator(),
-                ),
-              );
-            }
-            return const SizedBox();
-          })
+          BlocConsumer<AuthBloc, LoginState>(
+            listener: (_, state) {
+              if (state is! LoginSucessState && state is! LoginErrorState) {
+                return;
+              }
+              if (state is LoginErrorState) {
+                Fluttertoast.showToast(msg: state.message ?? "Unknown");
+                return;
+              }
+              StarlightUtils.pushReplacementNamed(RouteNames.home);
+            },
+            builder: (_, state) {
+              if (state is LoginLoadingState) {
+                return Container(
+                  width: context.width,
+                  height: context.height,
+                  color: const Color.fromARGB(20, 29, 27, 27),
+                  child: const Center(
+                    child: CupertinoActivityIndicator(),
+                  ),
+                );
+              }
+              return const SizedBox();
+            },
+          )
         ],
       ),
       //     body: Center(

@@ -1,14 +1,16 @@
 import 'package:flutter/cupertino.dart';
-import 'package:live_streaming/controller/live_stream_controller/live_stream_base_bloc.dart';
-import 'package:live_streaming/controller/live_stream_controller/live_stream_event.dart';
-import 'package:live_streaming/controller/live_stream_controller/live_stream_state.dart';
-import 'package:live_streaming/service/live_strem/live_stream_service.dart';
-import 'package:live_streaming/service/live_strem/model.dart';
+import 'package:live_streaming/controller/live_stream_controller/base/live_stream_base_bloc.dart';
+import 'package:live_streaming/controller/live_stream_controller/base/live_stream_base_event.dart';
+import 'package:live_streaming/controller/live_stream_controller/base/live_stream_base_state.dart';
+import 'package:live_streaming/controller/live_stream_controller/impl/host_controller/live_stream_host_event.dart';
+import 'package:live_streaming/controller/live_stream_controller/impl/host_controller/live_stream_host_state.dart';
+import 'package:live_streaming/service/ui_live_strem/impl/live_stream_host_service.dart';
+import 'package:live_streaming/service/ui_live_strem/model/livepayload.dart';
 import 'package:logger/logger.dart';
 
 class LiveStreamHostBloc
     extends LiveStreamBaseBloc<LiveStreamBaseEvent, LiveStreamBaseState> {
-  LiveStreamHostService service;
+  // LiveStreamHostService service;
   static final _logger = Logger();
   final TextEditingController controller = TextEditingController();
   final FocusNode focusNode = FocusNode();
@@ -16,7 +18,8 @@ class LiveStreamHostBloc
   GlobalKey<FormState>? formkey = GlobalKey();
   @override
   LivePayload? payload;
-  void listen(bool event) {
+  @override
+  void listener(bool event) {
     print("start live stream $event");
     if (!event) {
       emit(const LiveStreamContentCreateErrorState("failed to lived"));
@@ -25,10 +28,13 @@ class LiveStreamHostBloc
     emit(const LiveStreamContentCreateSuccessState());
   }
 
+  @override
+  final LiveStreamHostService service;
   LiveStreamHostBloc(this.service)
-      : super(const LiveStreamContentCreateInitalState()) {
+      : super(const LiveStreamContentCreateInitalState(), service) {
     _logger.i(state);
-    service.stream.listen(listen);
+
+    service.stream.listen(listener);
 
     on<LiveStreamContentCreateEvent>((event, emit) async {
       if (state is LiveStreamContentCreateLoadingState) return;

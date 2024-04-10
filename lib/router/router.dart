@@ -2,19 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:live_streaming/controller/auth_controller/auth_bloc.dart';
 import 'package:live_streaming/controller/home_controller/home_page_bloc.dart';
-import 'package:live_streaming/controller/live_stream_controller/live_stream_bloc.dart';
+import 'package:live_streaming/controller/live_stream_controller/impl/guest_controller/live_steam_guest_bloc.dart';
+import 'package:live_streaming/controller/live_stream_controller/impl/host_controller/live_stream_host_bloc.dart';
 import 'package:live_streaming/controller/live_view-controller/live_view_cubit.dart';
-import 'package:live_streaming/controller/post/post_bloc.dart';
 import 'package:live_streaming/locator.dart';
+import 'package:live_streaming/posts/post_bloc.dart';
 import 'package:live_streaming/router/route_name.dart';
 import 'package:live_streaming/screen/auth_screen.dart';
 import 'package:live_streaming/screen/home/home_screen.dart';
 import 'package:live_streaming/screen/live_stream_screen.dart';
 import 'package:live_streaming/screen/view/post_create/post_create_screen.dart';
-import 'package:live_streaming/service/auth_sevice.dart';
+import 'package:live_streaming/service/auth_service.dart/auth_sevice.dart';
 import 'package:live_streaming/service/impl/agora_guest_service.dart';
 import 'package:live_streaming/service/impl/agora_host_service.dart';
-import 'package:live_streaming/service/live_strem/live_stream_service.dart';
+import 'package:live_streaming/service/ui_live_strem/impl/live_stream_guest%20_servic.dart';
+import 'package:live_streaming/service/ui_live_strem/impl/live_stream_host_service.dart';
+import 'package:live_streaming/service/ui_live_strem/model/livepayload.dart';
 
 Route<dynamic>? router(RouteSettings settings) {
   if (Locator<AuthService>().currentuser == null) {
@@ -60,8 +63,34 @@ Route<dynamic>? router(RouteSettings settings) {
     case RouteNames.home:
       return _routebuilder(_buildHomePage(), settings);
     case RouteNames.view:
+      final value = settings.arguments;
+      if (value is! LivePayload) {
+        return _routebuilder(
+          const Scaffold(
+            body: Center(
+              child: Text("Trya "),
+            ),
+          ),
+          settings,
+        );
+      }
       return _routebuilder(
-          LiveStreamScreen(service: Locator<AgoraGuestService>()), settings);
+        MultiBlocProvider(
+          providers: [
+            BlocProvider(
+              create: (_) => LiveViewCubit(),
+            ),
+            BlocProvider(
+              create: (_) =>
+                  LiveStreamGuestBloc(LiveStreamGuestService(), value),
+            )
+          ],
+          child: LiveStreamScreen<LiveStreamGuestBloc>(
+            service: Locator<AgoraGuestService>(),
+          ),
+        ),
+        settings,
+      );
     default:
       return _routebuilder(_buildHomePage(),
           RouteSettings(name: RouteNames.home, arguments: settings.name));

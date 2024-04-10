@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:live_streaming/controller/live_stream_controller/live_stream_base_bloc.dart';
-import 'package:live_streaming/controller/live_stream_controller/live_stream_bloc.dart';
+import 'package:live_streaming/controller/live_stream_controller/base/live_stream_base_bloc.dart';
 import 'package:live_streaming/models/comment.dart';
 import 'package:live_streaming/screen/live_stream_screen.dart';
 import 'package:live_streaming/screen/view/live_stream_view.dart';
@@ -29,7 +28,7 @@ class LiveStreamFullScreenView<T extends LiveStreamBaseBloc>
 
   @override
   Widget build(BuildContext context) {
-    final bloc = context.read<LiveStreamHostBloc>();
+    final bloc = context.read<T>();
     // final commentHeight = context.height * 0.5;
     final screenWidth = context.width;
 

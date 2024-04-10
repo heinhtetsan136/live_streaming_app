@@ -1,6 +1,4 @@
-abstract class LiveStreamBaseState {
-  const LiveStreamBaseState();
-}
+import 'package:live_streaming/controller/live_stream_controller/base/live_stream_base_state.dart';
 
 class LiveStreamContentCreateInitalState extends LiveStreamBaseState {
   const LiveStreamContentCreateInitalState();

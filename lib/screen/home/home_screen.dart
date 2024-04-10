@@ -5,13 +5,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:live_streaming/controller/home_controller/home_page_bloc.dart';
-import 'package:live_streaming/controller/post/post_bloc.dart';
-import 'package:live_streaming/controller/post/post_state.dart';
 import 'package:live_streaming/locator.dart';
 import 'package:live_streaming/models/post.dart';
+import 'package:live_streaming/posts/post_bloc.dart';
+import 'package:live_streaming/posts/post_state.dart';
 import 'package:live_streaming/router/route_name.dart';
-import 'package:live_streaming/service/auth_sevice.dart';
+import 'package:live_streaming/service/auth_service.dart/auth_sevice.dart';
 import 'package:live_streaming/service/post/post_service.dart';
+import 'package:live_streaming/service/ui_live_strem/model/livepayload.dart';
 import 'package:starlight_utils/starlight_utils.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -36,7 +37,7 @@ class HomeScreen extends StatelessWidget {
       ),
       body: BlocBuilder<PostBloc, PostBaseState>(
         builder: (_, state) {
-          final posts = state.post;
+          final posts = state.posts;
           if (state is PostLoadingState) {
             return const Center(
               child: CupertinoActivityIndicator(),
@@ -154,7 +155,12 @@ class PostCard extends StatelessWidget {
                   );
                   return;
                 }
-                StarlightUtils.pushNamed(RouteNames.view);
+                StarlightUtils.pushNamed(RouteNames.view,
+                    arguments: LivePayload(
+                        userID: post.userId,
+                        liveID: post.liveId,
+                        channel: post.channel,
+                        token: ""));
                 // StarlightUtils.pushNamed(
                 //   // RouteNames.view,
                 //   // arguments: LivePayload(

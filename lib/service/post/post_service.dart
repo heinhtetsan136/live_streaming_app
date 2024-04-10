@@ -5,7 +5,7 @@ import 'package:live_streaming/core/error/error.dart';
 import 'package:live_streaming/core/model/result.dart';
 import 'package:live_streaming/locator.dart';
 import 'package:live_streaming/models/post.dart';
-import 'package:live_streaming/service/auth_sevice.dart';
+import 'package:live_streaming/service/auth_service.dart/auth_sevice.dart';
 import 'package:live_streaming/util/const/post_base_url.dart';
 
 class PostResult {
@@ -34,16 +34,22 @@ class PostService {
     }
     try {
       final String? token = await user.getIdToken();
+      if (token == null) {
+        return Result(error: GeneralError("Unauthorized"));
+      }
       print("token is $token");
       final response = await _dio.get("$POST_BASE_URL?page=$page&limit=$_limit",
           options: Options(headers: {
             "Authorization": "Bearer $token",
           }));
       final body = response.data;
-      _hasnextpage = body["next page"] != null;
+      // print(body);
+      _hasnextpage = body['next_page'] != null;
+      print(_hasnextpage);
       final post = (body["data"] as List).map(Post.fromJson).toList();
+      print(post);
       if (_hasnextpage) {
-        return Result(data: PostResult(post, page += 1));
+        return Result(data: PostResult(post, page + 1));
       }
 
       return Result(data: PostResult(post));
@@ -56,10 +62,15 @@ class PostService {
     }
   }
 
+  int _trycount = 0;
   Future<Result<List<Post>>> getAllPost() async {
-    if (!_hasnextpage) return Result(data: []);
+    if (!_hasnextpage && _trycount < 2) {
+      _trycount += 1;
+      return Result(data: []);
+    }
+    _trycount = 0;
     final result = await fetchPost(_page);
-    if (result.error != null) {
+    if (result.hasError) {
       return Result(error: GeneralError(result.error!.messsage.toString()));
     }
     if (result.data.nextPage != null) {
@@ -72,15 +83,19 @@ class PostService {
 
   Future<Result<List<Post>>> refresh() async {
     final List<Post> posts = [];
+    print(posts.toString());
 
     int? page = 1;
 
     while (page != null) {
       final result = await fetchPost(page);
+      print(result.toString());
       if (result.error != null) {
         return Result(error: GeneralError(result.error!.messsage.toString()));
       }
+
       final i = result.data.nextPage;
+      print(i);
       if (i != null && _page > i) {
         page = i;
       } else {
@@ -88,6 +103,7 @@ class PostService {
       }
       posts.addAll(result.data.post);
     }
+    print(posts.length);
 
     return Result(data: posts);
   }

@@ -1,6 +1,10 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:live_streaming/controller/live_stream_controller/live_stream_base_bloc.dart';
+import 'package:live_streaming/controller/live_stream_controller/base/live_stream_base_bloc.dart';
+import 'package:live_streaming/controller/live_stream_controller/base/live_stream_base_state.dart';
+import 'package:live_streaming/controller/live_stream_controller/impl/guest_controller/live_steam_guest_bloc.dart';
+import 'package:live_streaming/controller/live_stream_controller/impl/guest_controller/live_stream_guest_state.dart';
 import 'package:live_streaming/controller/live_view-controller/live_view_cubit.dart';
 import 'package:live_streaming/controller/live_view-controller/live_view_state.dart';
 import 'package:live_streaming/models/comment.dart';
@@ -35,38 +39,46 @@ class LiveStreamScreen<T extends LiveStreamBaseBloc> extends StatelessWidget {
     ///Guest
     return Scaffold(
       backgroundColor: kBgColor,
-      body: LiveStreamFullScreenView(service: service),
-      // body: BlocConsumer<, LiveStreamBaseState>(
+      // body: BlocConsumer<LiveStreamGuestBloc,LiveStreamBaseState>(
       //   listener: (context, state) {
-      //     ///
-      //   },
-      //   builder: (context, state) {
-      //     if (state is LiveStreamGuestJoinedState) {
-      //       return LiveStreamFullScreenView<LiveStreamGuestBloc>(
-      //         service: service,
-      //       );
-      //     }
-      //     if (state is LiveStreamGuestFailedToJoinState) {
-      //       return Center(
-      //         child: Text(state.message),
-      //       );
-      //     }
-      //     return const Center(
-      //       child: CupertinoActivityIndicator(),
-      //     );
 
-      //     // return ViewPortBuilder(
-      //     //   fullScreen: (context) {
-      //     //     return LiveStreamFullScreenView(
-      //     //       service: service,
-      //     //     );
-      //     //   },
-      //     //   minimized: (context) {
-      //     //     return LiveStreamMinizedScreenView(service: service);
-      //     //   },
-      //     // );
       //   },
+      //   builder: (context,state) {
+      //     return LiveStreamFullScreenView(service: service);
+      //   }
       // ),
+      body: BlocConsumer<LiveStreamGuestBloc, LiveStreamBaseState>(
+        listener: (context, state) {
+          ///
+        },
+        builder: (context, state) {
+          if (state is LiveStreamGuestJoinedState) {
+            return LiveStreamFullScreenView<LiveStreamGuestBloc>(
+              service: service,
+            );
+          }
+
+          if (state is LiveStreamGuestFailedToJoinState) {
+            return Center(
+              child: Text(state.message),
+            );
+          }
+          return const Center(
+            child: CupertinoActivityIndicator(),
+          );
+
+          // return ViewPortBuilder(
+          //   fullScreen: (context) {
+          //     return LiveStreamFullScreenView(
+          //       service: service,
+          //     );
+          //   },
+          //   minimized: (context) {
+          //     return LiveStreamMinizedScreenView(service: service);
+          //   },
+          // );
+        },
+      ),
     );
   }
 }

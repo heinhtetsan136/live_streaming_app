@@ -3,8 +3,8 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:live_streaming/core/error/error.dart';
 import 'package:live_streaming/core/model/result.dart';
-import 'package:live_streaming/service/live_strem/live_stream_base_service.dart';
-import 'package:live_streaming/service/live_strem/model.dart';
+import 'package:live_streaming/service/ui_live_strem/base/live_stream_base_service.dart';
+import 'package:live_streaming/service/ui_live_strem/model/livepayload.dart';
 import 'package:live_streaming/util/const/post_base_url.dart';
 import 'package:logger/logger.dart';
 
