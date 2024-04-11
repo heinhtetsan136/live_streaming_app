@@ -19,6 +19,28 @@ class LiveStreamHostService extends LiveStreamBaseService {
       setLiveStreamStatus(isStarted);
     });
   }
+  Future<Result> endLiveStream(int liveId) async {
+    _logger.i("endlivestream");
+    try {
+      final String? token = await authService.currentuser?.getIdToken();
+      if (token == null) {
+        return Result(error: GeneralError("Unauthorized"));
+      }
+      await dio.post(
+        "$POST_BASE_URL/$liveId/end",
+        options: Options(
+          headers: {"Authorization": "Bearer $token"},
+        ),
+      );
+      return Result<void>();
+    } on SocketException catch (e) {
+      return Result(error: GeneralError(e.message.toString()));
+    } on DioException catch (e) {
+      return Result(error: GeneralError(e.message.toString()));
+    } catch (e) {
+      return Result(error: GeneralError(e.toString()));
+    }
+  }
 
   static final _logger = Logger();
   Future<Result<LivePayload>> postCreate(String content) async {

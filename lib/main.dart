@@ -4,8 +4,8 @@ import 'package:live_streaming/controller/live_view-controller/live_view_cubit.d
 import 'package:live_streaming/locator.dart';
 import 'package:live_streaming/router/route_name.dart';
 import 'package:live_streaming/router/router.dart';
-import 'package:live_streaming/service/base/agora_base_service.dart';
-import 'package:live_streaming/service/impl/agora_host_service.dart';
+import 'package:live_streaming/service/agora_sevice/base/agora_base_service.dart';
+import 'package:live_streaming/service/agora_sevice/impl/agora_host_service.dart';
 import 'package:live_streaming/themes/light_theme.dart';
 import 'package:starlight_utils/starlight_utils.dart';
 

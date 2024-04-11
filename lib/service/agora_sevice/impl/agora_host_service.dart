@@ -1,5 +1,5 @@
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
-import 'package:live_streaming/service/base/agora_base_service.dart';
+import 'package:live_streaming/service/agora_sevice/base/agora_base_service.dart';
 
 class AgoraHostService extends AgoraBaseService {
   @override

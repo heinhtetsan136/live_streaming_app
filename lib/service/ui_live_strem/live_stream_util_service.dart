@@ -14,9 +14,11 @@ class LiveStreamUtilService {
     _socket ??= socket;
   }
 
+  int _interval = 1000;
+
   int _failCount = 0;
   void _runner(Function() callback) {
-    Future.delayed(const Duration(milliseconds: 1000), callback);
+    Future.delayed(Duration(milliseconds: _interval), callback);
   }
 
   void _init() {
@@ -59,7 +61,12 @@ class LiveStreamUtilService {
   }
 
   void listen(String event, Function(dynamic) callback) {
-    if (_failCount > 3) return;
+    if (_failCount > 3) {
+      _interval += _interval;
+      _failCount = 0;
+      _runner(() => listen(event, callback));
+    }
+
     _logger.i("this is listen");
     _logger.i(event);
     _logger.i(_listener);
@@ -74,12 +81,17 @@ class LiveStreamUtilService {
     }
     if (_listener.contains(event)) return;
     _failCount = 0;
+    _interval = 1000;
     _listener.add(event);
     _socket?.on(event, callback);
   }
 
   void emit(String event, dynamic data) {
-    if (_failCount > 3) return;
+    if (_failCount > 3) {
+      _interval += _interval;
+      _failCount = 0;
+      _runner(() => emit(event, data));
+    }
     if (_socket == null) {
       _failCount++;
       return _runner(() => emit(event, data));
@@ -88,6 +100,7 @@ class LiveStreamUtilService {
       _failCount++;
       return _runner(() => emit(event, data));
     }
+    _interval = 1000;
     _failCount = 0;
     Future.delayed(
       const Duration(seconds: 2),

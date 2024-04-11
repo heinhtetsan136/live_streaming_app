@@ -19,6 +19,7 @@ class LiveStreamGuestService extends LiveStreamBaseService {
       if (isJoined) {
         _listener();
         setLiveStreamStatus(true);
+
         return;
       }
       setLiveStreamStatus(false);
@@ -49,7 +50,9 @@ class LiveStreamGuestService extends LiveStreamBaseService {
       }
       return Result(data: response.data);
     } on DioException catch (e) {
-      return Result(error: GeneralError(e.message.toString()));
+      return Result(
+          error: GeneralError(
+              e.response?.data["error"].toString() ?? e.message.toString()));
     } on SocketException catch (e) {
       return Result(error: GeneralError(e.message));
     } catch (e) {

@@ -44,14 +44,14 @@ class PostService {
           }));
       final body = response.data;
       // print(body);
-      _hasnextpage = body['next_page'] != null;
-      print(_hasnextpage);
-      final post = (body["data"] as List).map(Post.fromJson).toList();
-      print(post);
-      if (_hasnextpage) {
+
+      print("this is next_page ${body['next_page'] != null}");
+      final post = (body['data'] as List).map(Post.fromJson).toList();
+      print("this is post ${post.length}");
+      if (body['next_page'] != null) {
         return Result(data: PostResult(post, page + 1));
       }
-
+      print("this is not next_page");
       return Result(data: PostResult(post));
     } on DioException catch (e) {
       return Result(error: GeneralError(e.toString()));
@@ -93,18 +93,21 @@ class PostService {
       if (result.error != null) {
         return Result(error: GeneralError(result.error!.messsage.toString()));
       }
+      print("result is ${result.data.post}");
 
       final i = result.data.nextPage;
-      print(i);
+      print("i = $i");
       if (i != null && _page > i) {
         page = i;
       } else {
         page = null;
       }
       posts.addAll(result.data.post);
+      print("this is post length ${posts.toString()}}");
+      print("this is ${posts.map((e) => e.content.toString())}");
     }
-    print(posts.length);
-
+    // print("this is post length ${posts.toString()}");
+    print("this is while ${posts.map((e) => e.content.toString())}");
     return Result(data: posts);
   }
 }

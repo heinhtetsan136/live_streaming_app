@@ -4,9 +4,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:get_it/get_it.dart';
 import 'package:live_streaming/firebase_options.dart';
+import 'package:live_streaming/service/agora_sevice/impl/agora_guest_service.dart';
+import 'package:live_streaming/service/agora_sevice/impl/agora_host_service.dart';
 import 'package:live_streaming/service/auth_service.dart/auth_sevice.dart';
-import 'package:live_streaming/service/impl/agora_guest_service.dart';
-import 'package:live_streaming/service/impl/agora_host_service.dart';
 import 'package:live_streaming/service/post/post_service.dart';
 
 GetIt Locator = GetIt.asNewInstance();

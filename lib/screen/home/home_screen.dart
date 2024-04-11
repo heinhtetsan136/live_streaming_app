@@ -8,6 +8,7 @@ import 'package:live_streaming/controller/home_controller/home_page_bloc.dart';
 import 'package:live_streaming/locator.dart';
 import 'package:live_streaming/models/post.dart';
 import 'package:live_streaming/posts/post_bloc.dart';
+import 'package:live_streaming/posts/post_event.dart';
 import 'package:live_streaming/posts/post_state.dart';
 import 'package:live_streaming/router/route_name.dart';
 import 'package:live_streaming/service/auth_service.dart/auth_sevice.dart';
@@ -21,6 +22,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.theme;
+    final postbloc = context.read<PostBloc>();
     final postservice = Locator<PostService>();
     final homepagebloc = context.read<HomePageBloc>();
     return Scaffold(
@@ -37,6 +39,8 @@ class HomeScreen extends StatelessWidget {
       ),
       body: BlocBuilder<PostBloc, PostBaseState>(
         builder: (_, state) {
+          print(
+              "this is state is $state ${state.posts.map((e) => e.content.toString())}");
           final posts = state.posts;
           if (state is PostLoadingState) {
             return const Center(
@@ -44,7 +48,9 @@ class HomeScreen extends StatelessWidget {
             );
           }
           return RefreshIndicator(
-            onRefresh: postservice.refresh,
+            onRefresh: () async {
+              postbloc.add(const PostNextPageEvent());
+            },
             child: ListView.separated(
               padding: const EdgeInsets.only(bottom: 10),
               separatorBuilder: (_, i) => const SizedBox(
@@ -52,8 +58,9 @@ class HomeScreen extends StatelessWidget {
               ),
               itemCount: posts.length,
               itemBuilder: (_, i) {
+                print("post length =$i");
                 final post = posts[i];
-
+                print("this is ui post ${post.content.toString()}");
                 return PostCard(
                   post: post,
                 );

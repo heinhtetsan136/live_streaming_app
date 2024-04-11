@@ -1,16 +1,22 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:live_streaming/controller/live_stream_controller/base/live_stream_base_bloc.dart';
 import 'package:live_streaming/controller/live_stream_controller/base/live_stream_base_state.dart';
 import 'package:live_streaming/controller/live_stream_controller/impl/guest_controller/live_steam_guest_bloc.dart';
+import 'package:live_streaming/controller/live_stream_controller/impl/guest_controller/live_stream_guest_event.dart';
 import 'package:live_streaming/controller/live_stream_controller/impl/guest_controller/live_stream_guest_state.dart';
+import 'package:live_streaming/controller/live_stream_controller/impl/host_controller/live_stream_host_bloc.dart';
+import 'package:live_streaming/controller/live_stream_controller/impl/host_controller/live_stream_host_event.dart';
 import 'package:live_streaming/controller/live_view-controller/live_view_cubit.dart';
 import 'package:live_streaming/controller/live_view-controller/live_view_state.dart';
-import 'package:live_streaming/models/comment.dart';
 import 'package:live_streaming/screen/view/live_stream_full_screen_view.dart';
-import 'package:live_streaming/service/base/agora_base_service.dart';
-import 'package:live_streaming/service/impl/agora_host_service.dart';
+import 'package:live_streaming/screen/view/widget/live_comment.dart';
+import 'package:live_streaming/service/agora_sevice/base/agora_base_service.dart';
+import 'package:live_streaming/service/agora_sevice/impl/agora_host_service.dart';
+import 'package:live_streaming/service/ui_live_strem/model/ui_livecomment.dart';
+import 'package:starlight_utils/starlight_utils.dart';
 
 const kVideoRadius = 20.0;
 const kBgColor = Color.fromRGBO(45, 40, 42, 1);
@@ -47,45 +53,65 @@ class LiveStreamScreen<T extends LiveStreamBaseBloc> extends StatelessWidget {
       //     return LiveStreamFullScreenView(service: service);
       //   }
       // ),
-      body: BlocConsumer<LiveStreamGuestBloc, LiveStreamBaseState>(
-        listener: (context, state) {
-          ///
-        },
-        builder: (context, state) {
-          if (state is LiveStreamGuestJoinedState) {
-            return LiveStreamFullScreenView<LiveStreamGuestBloc>(
-              service: service,
-            );
-          }
+      body: PopScope(
+        canPop: false,
+        onPopInvoked: (_) {},
+        child: BlocConsumer<LiveStreamGuestBloc, LiveStreamBaseState>(
+          listener: (context, state) async {
+            if (state is LiveStreamGuestFailedToJoinState) {
+              await StarlightUtils.dialog(
+                  AlertDialog(
+                    shape: const RoundedRectangleBorder(),
+                    title: const Text("Failed to join"),
+                    content: Text(state.message),
+                    actions: [
+                      ElevatedButton(
+                          onPressed: () {
+                            StarlightUtils.pop();
+                          },
+                          child: const Text("Failed to Join")),
+                    ],
+                  ),
+                  barrierDismissible: false);
+              StarlightUtils.pop();
+            }
 
-          if (state is LiveStreamGuestFailedToJoinState) {
-            return Center(
-              child: Text(state.message),
-            );
-          }
-          return const Center(
-            child: CupertinoActivityIndicator(),
-          );
+            ///
+          },
+          builder: (context, state) {
+            if (state is LiveStreamGuestJoinedState) {
+              return LiveStreamFullScreenView<LiveStreamGuestBloc>(
+                service: service,
+              );
+            }
 
-          // return ViewPortBuilder(
-          //   fullScreen: (context) {
-          //     return LiveStreamFullScreenView(
-          //       service: service,
-          //     );
-          //   },
-          //   minimized: (context) {
-          //     return LiveStreamMinizedScreenView(service: service);
-          //   },
-          // );
-        },
+            if (state is LiveStreamGuestFailedToJoinState) {
+              return const SizedBox();
+            }
+            return const Center(
+              child: CupertinoActivityIndicator(),
+            );
+
+            // return ViewPortBuilder(
+            //   fullScreen: (context) {
+            //     return LiveStreamFullScreenView(
+            //       service: service,
+            //     );
+            //   },
+            //   minimized: (context) {
+            //     return LiveStreamMinizedScreenView(service: service);
+            //   },
+            // );
+          },
+        ),
       ),
     );
   }
 }
 
 //3850026755
-class CommentSection extends StatelessWidget {
-  final Widget Function(BuildContext, Comments)? builder;
+class CommentSection<T extends LiveStreamBaseBloc> extends StatelessWidget {
+  final Widget Function(BuildContext, UiLiveStreamComment)? builder;
   final double commentSectionWidth, commentSectionHeight;
   final Color? backgroundColor;
   final BorderRadiusGeometry? borderRadius;
@@ -100,6 +126,7 @@ class CommentSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final T bloc = context.read<T>();
     return Container(
       width: commentSectionWidth,
       height: commentSectionHeight,
@@ -113,18 +140,18 @@ class CommentSection extends StatelessWidget {
       ),
       child: Stack(
         children: [
-          // LiveComments(
-          //   builder: builder != null
-          //       ? builder!
-          //       : (_, comment) {
-          //           return CommentBox(
-          //             padding: const EdgeInsets.symmetric(
-          //               horizontal: 20,
-          //             ),
-          //             comment: comment,
-          //           );
-          //         },
-          // ),
+          LiveComments<T>(
+            builder: builder != null
+                ? builder!
+                : (_, comment) {
+                    return CommentBox(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                      ),
+                      comment: comment,
+                    );
+                  },
+          ),
           Positioned(
             bottom: 20,
             left: 20,
@@ -132,6 +159,7 @@ class CommentSection extends StatelessWidget {
 
             ///Home Work
             child: TextField(
+              controller: bloc.controller,
               minLines: 1,
               maxLines: 3,
               keyboardType: TextInputType.multiline,
@@ -146,7 +174,9 @@ class CommentSection extends StatelessWidget {
                   fontWeight: FontWeight.w500,
                 ),
                 suffixIcon: IconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    bloc.add(LiveStreamGuestSendComment());
+                  },
                   icon: const Icon(Icons.send),
                 ),
                 contentPadding: const EdgeInsets.only(
@@ -191,7 +221,7 @@ class ViewPortBuilder extends StatelessWidget {
 }
 
 class CommentBox extends StatelessWidget {
-  final Comments comment;
+  final UiLiveStreamComment comment;
   final EdgeInsetsGeometry? padding;
   final EdgeInsetsGeometry? margin;
   final Color? backgroundColor, foregroundColor;
@@ -221,18 +251,43 @@ class CommentBox extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(
-                Icons.person,
-                color: color,
+              CircleAvatar(
+                backgroundImage: comment.profilePhoto.isEmpty
+                    ? null
+                    : CachedNetworkImageProvider(comment.profilePhoto),
+                child: comment.profilePhoto.isEmpty
+                    ? const Icon(Icons.person)
+                    : null,
               ),
               const SizedBox(
                 width: 10,
               ),
-              Text(
-                "Person ${comment.createdAt}",
-                style: TextStyle(
-                  color: color,
-                  fontSize: 16,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      comment.displayName.toString(),
+                      style: TextStyle(
+                        color: color,
+                        fontSize: 16,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(
+                      comment.createdAt
+                          .toString()
+                          .split(" ")
+                          .last
+                          .split(".")
+                          .first,
+                      style: TextStyle(
+                        color: color,
+                        fontSize: 16,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -240,13 +295,45 @@ class CommentBox extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(top: 10),
             child: Text(
-              comment.message,
+              comment.comment,
               style: TextStyle(
                 color: color,
               ),
             ),
           )
         ],
+      ),
+    );
+  }
+}
+
+class LiveEndButton extends StatelessWidget {
+  const LiveEndButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final bloc = context.read<LiveStreamHostBloc>();
+    return SizedBox(
+      width: 60,
+      height: 30,
+      child: ElevatedButton(
+        style: ButtonStyle(
+          backgroundColor: const MaterialStatePropertyAll(Colors.red),
+          foregroundColor: const MaterialStatePropertyAll(Colors.white),
+          shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(4),
+          )),
+          padding: const MaterialStatePropertyAll(
+            EdgeInsets.symmetric(horizontal: 4),
+          ),
+        ),
+        onPressed: () {
+          print("end");
+          bloc.add(const LiveSteamEndEvent());
+        },
+        child: const Text(
+          'End',
+        ),
       ),
     );
   }

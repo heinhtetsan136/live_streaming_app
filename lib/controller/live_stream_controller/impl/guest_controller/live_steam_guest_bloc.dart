@@ -1,3 +1,4 @@
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:live_streaming/controller/live_stream_controller/base/live_stream_base_bloc.dart';
 import 'package:live_streaming/controller/live_stream_controller/base/live_stream_base_event.dart';
 import 'package:live_streaming/controller/live_stream_controller/base/live_stream_base_state.dart';
@@ -10,12 +11,23 @@ import 'package:logger/logger.dart';
 class LiveStreamGuestBloc
     extends LiveStreamBaseBloc<LiveStreamBaseEvent, LiveStreamBaseState> {
   static final _logger = Logger();
+
   @override
   final LiveStreamGuestService service;
   LiveStreamGuestBloc(this.service, LivePayload payload)
       : super(const LiveStreamGuestInitialState(), service) {
     super.payload = payload;
 
+    on<LiveStreamGuestSendComment>((_, emit) async {
+      final comment = controller.text;
+      if (comment.isEmpty) return;
+      controller.clear();
+      final result = await service.sendcomment(comment, super.payload!.liveID);
+      _logger.i("comment $result");
+      if (result.hasError) {
+        Fluttertoast.showToast(msg: result.error!.messsage.toString());
+      }
+    });
     on<LiveStreamGuestJoinEvent>((event, emit) async {
       if (state is LiveStreamGuestJoiningState) return;
 
@@ -36,12 +48,22 @@ class LiveStreamGuestBloc
     add(const LiveStreamGuestJoinEvent());
   }
   @override
-  void listener(bool value) {
+  void listener(bool? value) {
+    if (value == null) return;
     if (value) {
       emit(const LiveStreamGuestJoinedState());
     } else {
       emit(const LiveStreamGuestFailedToJoinState("unknown error"));
     }
     // TODO: implement listener
+  }
+
+  @override
+  Future<void> close() {
+    service.dispose();
+
+    // controller.dispose();
+    // TODO: implement close
+    return super.close();
   }
 }

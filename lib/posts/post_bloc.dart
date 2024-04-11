@@ -13,9 +13,12 @@ class PostBloc extends Bloc<PostBaseEvent, PostBaseState> {
   static final Logger _logger = Logger();
 
   PostBloc() : super(const PostInitialState()) {
+    _logger.i("this is postbloc");
     on<PostNextPageEvent>((_, emit) async {
       if (state is PostLoadingState) return;
-      final copied = state.posts.toList();
+      final List<Post> copied = state.posts.toList();
+      _logger.i("this is postbloc ${copied.length}");
+      _logger.i("this is copied ${copied.length}");
       if (copied.isEmpty) {
         emit(PostLoadingState(copied));
       } else {
@@ -28,6 +31,7 @@ class PostBloc extends Bloc<PostBaseEvent, PostBaseState> {
         emit(PostErrorState(copied, result.error?.messsage));
         return;
       }
+      _logger.i("this is copied ${copied.map((e) => e.content.toString())}");
       copied.addAll(result.data);
       emit(PostSuccesState(copied));
     });

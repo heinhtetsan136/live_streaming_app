@@ -3,3 +3,7 @@ import 'package:live_streaming/controller/live_stream_controller/base/live_strea
 class LiveStreamContentCreateEvent extends LiveStreamBaseEvent {
   const LiveStreamContentCreateEvent();
 }
+
+class LiveSteamEndEvent extends LiveStreamBaseEvent {
+  const LiveSteamEndEvent();
+}

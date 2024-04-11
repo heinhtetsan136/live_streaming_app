@@ -5,7 +5,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:live_streaming/core/error/error.dart';
 import 'package:live_streaming/core/model/result.dart';
 import 'package:live_streaming/locator.dart';
-import 'package:live_streaming/service/base/agora_base_service.dart';
+import 'package:live_streaming/service/agora_sevice/base/agora_base_service.dart';
 
 class AuthService {
   final FirebaseAuth _auth;

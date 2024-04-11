@@ -3,3 +3,7 @@ import 'package:live_streaming/controller/live_stream_controller/base/live_strea
 class LiveStreamGuestJoinEvent extends LiveStreamBaseEvent {
   const LiveStreamGuestJoinEvent();
 }
+
+class LiveStreamGuestSendComment extends LiveStreamBaseEvent {
+  LiveStreamGuestSendComment();
+}
