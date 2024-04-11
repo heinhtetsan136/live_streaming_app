@@ -57,15 +57,16 @@ class _LiveStreamVideoState<T extends LiveStreamBaseBloc>
 
   @override
   Widget build(BuildContext context) {
+    if (widget.service is AgoraHostService) {
+      return AgoraVideoView(
+        controller: widget.service.videoViewcontroller,
+      );
+    }
     return StreamBuilder(
       stream: widget.service.onLive.stream,
       builder: (_, snp) {
         print({"uiliveStream is ${widget.service.toString()}"});
-        if (widget.service is AgoraHostService) {
-          return AgoraVideoView(
-            controller: widget.service.videoViewcontroller,
-          );
-        }
+
         final conn = widget.service.connection;
         _logger.i("connectconn ${conn.toString()}");
         if (conn == null) {
