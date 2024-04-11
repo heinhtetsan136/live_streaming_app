@@ -12,6 +12,7 @@ abstract class LiveStreamBaseBloc<E, S> extends Bloc<E, S> {
   late final AgoraHandler handler;
   StreamSubscription? _subscription;
   LiveStreamBaseBloc(super.initialState, this.service) {
+    service.isSocketReady;
     handler = AgoraHandler.fast();
     _subscription = service.stream.listen(listener);
   }

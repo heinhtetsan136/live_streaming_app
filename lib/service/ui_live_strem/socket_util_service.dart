@@ -14,14 +14,44 @@ class LiveStreamUtilService {
     _socket ??= socket;
   }
 
+  Future<bool> get isSocketReady {
+    return _validate(() async {
+      return true;
+    }, () => isSocketReady);
+  }
+
   int _interval = 1000;
 
   int _failCount = 0;
-  void _runner(Function() callback) {
-    Future.delayed(Duration(milliseconds: _interval), callback);
+  Future<T> _runner<T>(Future<T> Function() callback) async {
+    return Future.delayed(Duration(milliseconds: _interval), callback);
   }
 
-  void _init() {
+  Future<T> _validate<T>(Future<T> Function() run, Future<T> Function() fail) {
+    if (_failCount > 3) {
+      _interval += _interval;
+      _failCount = 0;
+      return _runner(fail);
+    }
+
+    _logger.i("this is listen");
+    // _logger.i(event);
+    _logger.i(_listener);
+    _logger.i("socket ${_socket?.connected}");
+    if (_socket == null) {
+      _failCount++;
+      return _runner(fail);
+    }
+    if (_socket?.connected != true) {
+      _failCount++;
+      return _runner(fail);
+    }
+    _failCount = 0;
+    _interval = 500;
+    return run();
+  }
+
+  void _defaultEvent() {
     _socket?.onConnectTimeout((data) {
       _logger.e("ConnectTimeout $data");
     });
@@ -57,55 +87,23 @@ class LiveStreamUtilService {
           .enableAutoConnect()
           .build(),
     );
-    _init();
+    _defaultEvent();
   }
 
   void listen(String event, Function(dynamic) callback) {
-    if (_failCount > 3) {
-      _interval += _interval;
-      _failCount = 0;
-      _runner(() => listen(event, callback));
-    }
-
-    _logger.i("this is listen");
-    _logger.i(event);
-    _logger.i(_listener);
-    _logger.i("socket ${_socket?.connected}");
-    if (_socket == null) {
-      _failCount++;
-      return _runner(() => listen(event, callback));
-    }
-    if (_socket?.connected != true) {
-      _failCount++;
-      return _runner(() => listen(event, callback));
-    }
-    if (_listener.contains(event)) return;
-    _failCount = 0;
-    _interval = 1000;
-    _listener.add(event);
-    _socket?.on(event, callback);
+    _validate(() async {
+      _listener.add(event);
+      _socket?.on(event, callback);
+    }, () async => listen(event, callback));
   }
 
   void emit(String event, dynamic data) {
-    if (_failCount > 3) {
-      _interval += _interval;
-      _failCount = 0;
-      _runner(() => emit(event, data));
-    }
-    if (_socket == null) {
-      _failCount++;
-      return _runner(() => emit(event, data));
-    }
-    if (_socket?.connected != true) {
-      _failCount++;
-      return _runner(() => emit(event, data));
-    }
-    _interval = 1000;
-    _failCount = 0;
-    Future.delayed(
-      const Duration(seconds: 2),
-      () => _socket?.emit(event, data),
-    );
+    _validate(() async {
+      Future.delayed(
+        const Duration(seconds: 2),
+        () => _socket?.emit(event, data),
+      );
+    }, () async => emit(event, data));
   }
 
   // LiveStreamUtilService(this.socket) {
