@@ -26,6 +26,7 @@ class LiveStreamHostBloc
     if (event == null) return;
     print("start live stream $event");
     if (!event) {
+      _logger.e("error is error $event");
       emit(const LiveStreamContentCreateErrorState("failed to lived"));
       return;
     }
@@ -38,13 +39,12 @@ class LiveStreamHostBloc
       : super(const LiveStreamContentCreateInitalState(), service) {
     _logger.i(state);
 
-    service.stream.listen(listener);
-
     on<LiveStreamContentCreateEvent>((event, emit) async {
       if (state is LiveStreamContentCreateLoadingState) return;
       emit(const LiveStreamContentCreateLoadingState());
       final result = await service.postCreate(controller.text);
       if (result.hasError) {
+        _logger.e("error1 is error ${result.error.toString()}");
         emit(LiveStreamContentCreateErrorState(
             result.error!.messsage.toString()));
         return;
@@ -69,13 +69,25 @@ class LiveStreamHostBloc
       Fluttertoast.showToast(msg: "sucessfully end");
     });
   }
+
   @override
-  Future<void> close() {
-    controller.dispose();
-    focusNode.dispose();
-    service.dispose();
-    formkey = null;
-    // TODO: implement close
-    return super.close();
+  void readystate(bool value) {
+    if (value) {
+      emit(const LiveStreamPostCreateReady());
+    } else {
+      _logger.e("error2 is error $value");
+      emit(const LiveStreamContentCreateErrorState("Connection Time OUt"));
+    }
+
+    // TODO: implement readystate
+  }
+
+  @override
+  void defaultSocketConnection() {
+    on<LiveStreamSocketConnectEvent>((_, emit) {
+      emit(const LiveStreamContentCreateInitalState());
+      super.connect();
+    });
+    // TODO: implement defaultSocketConnection
   }
 }

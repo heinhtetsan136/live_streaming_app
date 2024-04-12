@@ -21,8 +21,8 @@ abstract class LiveStreamBaseService extends LiveStreamUtilService {
       StreamController.broadcast();
   final StreamController<int> _viewCount = StreamController.broadcast();
   Stream<bool?> get stream {
-    Future.delayed(
-        const Duration(milliseconds: 500), () => setViewCount(_lastCount));
+    Future.delayed(const Duration(milliseconds: 500),
+        () => setLiveStreamStatus(_setliveStream));
     return _stream.stream;
   }
 
@@ -89,7 +89,7 @@ abstract class LiveStreamBaseService extends LiveStreamUtilService {
   }
 
   bool? _setliveStream;
-  void setLiveStreamStatus(bool status) {
+  void setLiveStreamStatus(bool? status) {
     _setliveStream = status;
     _stream.sink.add(_setliveStream);
     // LiveStreamBaseService();
@@ -109,7 +109,7 @@ abstract class LiveStreamBaseService extends LiveStreamUtilService {
     _viewCount.close();
     _comment.close();
     _userJoin.close();
-    _stream.close();
+    // _stream.close();
     // TODO: implement dispose
     super.dispose();
   }

@@ -17,10 +17,18 @@ class LiveStreamUtilService {
   Future<bool> get isSocketReady {
     return _validate(() async {
       return true;
-    }, () => isSocketReady);
+    }, () {
+      print("_socket ${_socket?.connected.toString()}");
+      if (_socket?.connected != true) {
+        print("_socket ${_socket?.connected.toString()}");
+        _socket?.disconnect();
+        _socket?.connect();
+      }
+      return isSocketReady;
+    });
   }
 
-  int _interval = 1000;
+  int _interval = 500;
 
   int _failCount = 0;
   Future<T> _runner<T>(Future<T> Function() callback) async {

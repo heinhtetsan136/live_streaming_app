@@ -12,17 +12,30 @@ abstract class LiveStreamBaseBloc<E, S> extends Bloc<E, S> {
   late final AgoraHandler handler;
   StreamSubscription? _subscription;
   LiveStreamBaseBloc(super.initialState, this.service) {
-    service.isSocketReady;
+    connect();
+    defaultSocketConnection();
+
     handler = AgoraHandler.fast();
+
     _subscription = service.stream.listen(listener);
   }
   TextEditingController controller = TextEditingController();
   void listener(bool? value);
+  void defaultSocketConnection();
+  void readystate(bool value);
+  void connect() {
+    print("connect socket");
+    service.isSocketReady.then(readystate).timeout(const Duration(seconds: 5),
+        onTimeout: () {
+      readystate(false);
+    });
+  }
+
   @override
   Future<void> close() {
     controller.dispose();
-    _subscription?.cancel();
-    service.dispose();
+    // _subscription?.cancel();
+    // service.dispose();
 
     // TODO: implement close
     return super.close();

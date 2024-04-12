@@ -16,6 +16,7 @@ import 'package:live_streaming/screen/view/widget/live_comment.dart';
 import 'package:live_streaming/service/agora_sevice/base/agora_base_service.dart';
 import 'package:live_streaming/service/agora_sevice/impl/agora_host_service.dart';
 import 'package:live_streaming/service/ui_live_strem/model/ui_livecomment.dart';
+import 'package:live_streaming/util/dialog/errror_dialog.dart';
 import 'package:starlight_utils/starlight_utils.dart';
 
 const kVideoRadius = 20.0;
@@ -59,24 +60,11 @@ class LiveStreamScreen<T extends LiveStreamBaseBloc> extends StatelessWidget {
         child: BlocConsumer<LiveStreamGuestBloc, LiveStreamBaseState>(
           listener: (context, state) async {
             if (state is LiveStreamGuestFailedToJoinState) {
-              await StarlightUtils.dialog(
-                  AlertDialog(
-                    shape: const RoundedRectangleBorder(),
-                    title: const Text("Failed to join"),
-                    content: Text(state.message),
-                    actions: [
-                      ElevatedButton(
-                          onPressed: () {
-                            StarlightUtils.pop();
-                          },
-                          child: const Text("Failed to Join")),
-                    ],
-                  ),
-                  barrierDismissible: false);
+              await showErrorDialog("failed to join", state.message);
               StarlightUtils.pop();
-            }
 
-            ///
+              ///
+            }
           },
           builder: (context, state) {
             if (state is LiveStreamGuestJoinedState) {

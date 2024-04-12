@@ -91,11 +91,4 @@ class LiveStreamHostService extends LiveStreamBaseService {
       setComment(p0.toString());
     }));
   }
-
-  @override
-  void dispose() {
-    // _stream.close();
-    // TODO: implement dispose
-    super.dispose();
-  }
 }

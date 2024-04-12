@@ -60,10 +60,29 @@ class LiveStreamGuestBloc
 
   @override
   Future<void> close() {
-    service.dispose();
+    // service.dispose();
 
     // controller.dispose();
     // TODO: implement close
     return super.close();
+  }
+
+  @override
+  void readystate(bool value) {
+    if (value) {
+      emit(const LiveStreamPostCreateReady());
+    } else {
+      emit(const LiveStreamGuestFailedToJoinState("Connection Time OUt"));
+    }
+    // TODO: implement readystate
+  }
+
+  @override
+  void defaultSocketConnection() {
+    on<LiveStreamSocketConnectEvent>((_, emit) {
+      emit(const LiveStreamGuestInitialState());
+      super.connect();
+    });
+    // TODO: implement defaultSocketConnection
   }
 }
