@@ -1,9 +1,13 @@
+import 'package:equatable/equatable.dart';
 import 'package:live_streaming/models/post.dart';
 
 ///GET
-abstract class PostBaseState {
+abstract class PostBaseState extends Equatable {
   final List<Post> posts;
   const PostBaseState(this.posts);
+  @override
+  // TODO: implement props
+  List<Object?> get props => posts;
 }
 
 class PostInitialState extends PostBaseState {
@@ -25,4 +29,7 @@ class PostSuccesState extends PostBaseState {
 class PostErrorState extends PostBaseState {
   final String? message;
   const PostErrorState(super.posts, this.message);
+  @override
+  // TODO: implement props
+  List<Object?> get props => [...posts, message];
 }

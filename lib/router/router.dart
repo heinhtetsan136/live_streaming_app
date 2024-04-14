@@ -22,8 +22,8 @@ import 'package:live_streaming/service/ui_live_strem/model/livepayload.dart';
 LiveStreamHostBloc _findHostBloc() {
   final isRegistered = Locator.isRegistered<LiveStreamHostBloc>();
   if (!isRegistered) {
-    Locator.registerLazySingleton(
-        () => LiveStreamHostBloc(LiveStreamHostService()));
+    Locator.registerLazySingleton(() => LiveStreamHostBloc(
+        LiveStreamHostService(), Locator<AgoraHostService>()));
   } else {
     Locator.resetLazySingleton<LiveStreamHostBloc>();
   }
@@ -43,8 +43,8 @@ Route<dynamic>? router(RouteSettings settings) {
       late LiveStreamHostBloc value;
       final isRegistered = Locator.isRegistered<LiveStreamHostBloc>();
       if (!isRegistered) {
-        Locator.registerLazySingleton(
-            () => LiveStreamHostBloc(LiveStreamHostService()));
+        Locator.registerLazySingleton(() => LiveStreamHostBloc(
+            LiveStreamHostService(), Locator<AgoraHostService>()));
       } else {
         Locator.resetLazySingleton<LiveStreamHostBloc>();
       }
@@ -129,8 +129,8 @@ Route<dynamic>? router(RouteSettings settings) {
               create: (_) => LiveViewCubit(),
             ),
             BlocProvider(
-              create: (_) =>
-                  LiveStreamGuestBloc(LiveStreamGuestService(), value),
+              create: (_) => LiveStreamGuestBloc(LiveStreamGuestService(),
+                  value, Locator<AgoraGuestService>()),
             )
           ],
           child: LiveStreamScreen<LiveStreamGuestBloc>(

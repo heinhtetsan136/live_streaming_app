@@ -5,6 +5,7 @@ import 'package:live_streaming/controller/live_stream_controller/base/live_strea
 import 'package:live_streaming/controller/live_stream_controller/base/live_stream_base_state.dart';
 import 'package:live_streaming/controller/live_stream_controller/impl/host_controller/live_stream_host_event.dart';
 import 'package:live_streaming/controller/live_stream_controller/impl/host_controller/live_stream_host_state.dart';
+import 'package:live_streaming/service/agora_sevice/impl/agora_host_service.dart';
 import 'package:live_streaming/service/ui_live_strem/impl/live_stream_host_service.dart';
 import 'package:live_streaming/service/ui_live_strem/model/livepayload.dart';
 
@@ -14,6 +15,8 @@ class LiveStreamHostBloc
   // LiveStreamHostService service;
   // static final _logger = Logger();
   @override
+  final AgoraHostService agoraHostService;
+  @override
   final TextEditingController controller = TextEditingController();
   final FocusNode focusNode = FocusNode();
   // final LiveStreamHostService service = Locator<LiveStreamHostService>();
@@ -21,21 +24,21 @@ class LiveStreamHostBloc
   @override
   LivePayload? payload;
   @override
-  void listener(bool? event) {
-    if (event == null) return;
+  LiveStreamBaseState? streamstatuslistener(bool? event) {
+    if (event == null) return null;
     print("start live stream $event");
     if (!event) {
       // _logger.e("error is error $event");
-      emit(const LiveStreamContentCreateErrorState("failed to lived"));
-      return;
+      return const LiveStreamContentCreateErrorState("failed to lived");
     }
-    emit(const LiveStreamContentCreateSuccessState());
+    return const LiveStreamContentCreateSuccessState();
   }
 
   @override
   final LiveStreamHostService service;
-  LiveStreamHostBloc(this.service)
-      : super(const LiveStreamContentCreateInitalState(), service) {
+  LiveStreamHostBloc(this.service, this.agoraHostService)
+      : super(const LiveStreamContentCreateInitalState(), service,
+            agoraHostService) {
     // _logger.i(state);
 
     on<LiveStreamContentCreateEvent>((event, emit) async {

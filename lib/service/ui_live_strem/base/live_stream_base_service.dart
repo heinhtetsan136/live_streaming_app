@@ -25,7 +25,7 @@ abstract class LiveStreamBaseService extends LiveStreamUtilService {
   final StreamController<int> _viewCount = StreamController.broadcast();
   Stream<bool?> get stream {
     Future.delayed(const Duration(milliseconds: 500),
-        () => setLiveStreamStatus(_setliveStream));
+        () => setLiveStreamStatus(_streamstatus));
     return _stream.stream;
   }
 
@@ -91,10 +91,11 @@ abstract class LiveStreamBaseService extends LiveStreamUtilService {
     }
   }
 
-  bool? _setliveStream;
+  bool? _streamstatus;
   void setLiveStreamStatus(bool? status) {
-    _setliveStream = status;
-    _stream.sink.add(_setliveStream);
+    _logger.wtf("this is stream status $status");
+    _streamstatus = status;
+    _stream.sink.add(_streamstatus);
     // LiveStreamBaseService();
   }
 

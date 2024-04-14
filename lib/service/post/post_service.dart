@@ -6,6 +6,7 @@ import 'package:live_streaming/core/model/result.dart';
 import 'package:live_streaming/locator.dart';
 import 'package:live_streaming/models/post.dart';
 import 'package:live_streaming/service/auth_service.dart/auth_sevice.dart';
+import 'package:live_streaming/service/ui_live_strem/socket_util_service.dart';
 import 'package:live_streaming/util/const/post_base_url.dart';
 
 class PostResult {
@@ -15,15 +16,27 @@ class PostResult {
   PostResult(this.post, [this.nextPage]);
 }
 
-class PostService {
+class PostService extends LiveStreamUtilService {
   final AuthService _authService = Locator<AuthService>();
   final Dio _dio;
   PostService({
     int page = 1,
     int limit = 20,
-  })  : _dio = Locator<Dio>(),
-        _page = page,
-        _limit = limit;
+  })  : _page = page,
+        _limit = limit,
+        _dio = Locator<Dio>() {
+    init();
+  }
+  void postlistener(void Function(Post post) callback) {
+    listen("post", (p0) {
+      try {
+        final post = Post.fromJson(p0);
+        if (post.userId == socketId) return;
+        callback(Post.fromJson(p0));
+      } catch (e) {}
+    });
+  }
+
   int _page;
   final int _limit;
   bool _hasnextpage = true;

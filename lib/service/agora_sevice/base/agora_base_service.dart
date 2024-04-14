@@ -36,11 +36,11 @@ class AgoraHandler {
       onUserOffline;
   final void Function(RtcConnection connection, String token)
       onTokenPrivilegeWillExpire;
-  final void Function(RtcConnection connection, int elapsed)?
+  final void Function(RtcConnection connection, int elapsed)
       onRejoinChannelSuccess;
   final void Function(RtcConnection connection, RtcStats stats) onLeaveChannel;
 
-  final void Function(ErrorCodeType err, String msg)? onError;
+  final void Function(ErrorCodeType err, String msg) onError;
   AgoraHandler({
     required this.onError,
     required this.onLeaveChannel,
@@ -102,7 +102,7 @@ abstract class AgoraBaseService {
     this.uid = uid!;
     this.token = token;
     assert(status == 2);
-    // logger.i("Live");
+    logger.i("Live");
     this.channel = channel;
     await engine.joinChannel(
         token: token,
@@ -116,6 +116,7 @@ abstract class AgoraBaseService {
   ChannelProfileType get channelprofile =>
       ChannelProfileType.channelProfileLiveBroadcasting;
   Future<void> init() async {
+    print("assert $status");
     assert(status == 0);
     print("init state");
     logger.i("ini");
@@ -130,43 +131,61 @@ abstract class AgoraBaseService {
   AgoraLiveConnection? connection;
   RtcEngineEventHandler? _handler;
 
-  StreamController<AgoraLiveConnection> onLive =
-      StreamController<AgoraLiveConnection>.broadcast();
+  StreamController<AgoraLiveConnection?> onLive =
+      StreamController<AgoraLiveConnection?>.broadcast();
   set handler(AgoraHandler h) {
-    _handler = RtcEngineEventHandler(onUserJoined: (con, remoteuid, _) {
-      logger.i("[Stream:On User Joined] [onuserjoined]$remoteuid");
-      //To Do
-      logger.wtf("this is on user joined");
-      connection = AgoraLiveConnection(connection: con, remoteId: remoteuid);
-      onLive.sink.add(connection!);
-      h.onUserJoined(con, remoteuid, _);
-    }, onError: ((err, msg) {
-      h.onError!(err, msg);
-      logger.e(" [Stream:On Error] [error] $err/n [str] $msg");
-    }), onUserOffline: (con, uid, reason) {
-      logger.i("[Stream:onuseroffline] [onuseroffline]$uid $con $reason");
-      //To Do
-      h.onUserOffline(con, uid, reason);
-    }, onRejoinChannelSuccess: (connection, _) {
-      h.onJoinChannelSuccess(connection, _);
+    _handler = RtcEngineEventHandler(
+      //Live Start
+      onUserJoined: (conn, remoteUid, _) {
+        logger.i("[stream:onUserJoined] [conn] $conn\n[remoteUid] $remoteUid");
+        connection = AgoraLiveConnection(connection: conn, remoteId: remoteUid);
+        onLive.sink.add(connection);
+        h.onUserJoined(conn, remoteUid, _);
+      },
+      //Live Stop
 
-      logger.i("[onrejoin] [onrejoin]$connection");
-    }, onLeaveChannel: (conn, status) {
-      h.onLeaveChannel(conn, status);
-      logger.i("[Stream:onleave] [onleave]$conn $status ");
-    }, onJoinChannelSuccess: (connection, uId) {
-      logger.i(
-          "[Stream:onjoinchannelsucess] [onjoinchannelsucess]$uId [conntection]$connection");
-      h.onJoinChannelSuccess(connection, uId);
-    }, onTokenPrivilegeWillExpire: (conn, token) {
-      logger.d("[Stream:ontolkeprivil] [:ontolkeprivil]$token $conn");
-      print("RTC onTokeExpire $token");
-      h.onTokenPrivilegeWillExpire(conn, token);
-    });
+      onUserOffline: (conn, uid, reason) {
+        logger.d(
+            "[stream:onUserOffline] [conn] $conn\n[uid] $uid\n[reason] $reason");
+        h.onUserOffline(conn, uid, reason);
+      },
+      //Live Stop
+
+      onTokenPrivilegeWillExpire: (conn, token) {
+        logger.d(
+            "[stream:onTokenPrivilegeWillExpire] [conn] $conn\n[token] $token");
+        h.onTokenPrivilegeWillExpire(conn, token);
+      },
+
+      ///View Count ++
+      onJoinChannelSuccess: (conn, uid) {
+        logger.i("[stream:onJoinChannelSuccess] [conn] $conn\n[uid] $uid");
+        h.onJoinChannelSuccess(conn, uid);
+      },
+
+      ///View Count ++
+      onRejoinChannelSuccess: (conn, _) {
+        logger.i("[stream:onRejoinChannelSuccess] [conn] $conn");
+        h.onRejoinChannelSuccess(conn, _);
+      },
+
+      ///View Count --
+      onLeaveChannel: (conn, stats) {
+        logger.i("[stream:onLeaveChannel] [conn] $conn\n[stats] $status");
+        h.onLeaveChannel(conn, stats);
+      },
+
+      ///Ui
+      onError: (code, str) {
+        logger.e("[stream:onError] [code] $code\n[str] $str");
+        h.onError(code, str);
+      },
+    );
   }
 
   Future<void> close() async {
-    assert(status == 1);
+    assert(status > 0);
+    _state = 0;
     engine.unregisterEventHandler(_handler!);
     await engine.leaveChannel();
     await engine.release();

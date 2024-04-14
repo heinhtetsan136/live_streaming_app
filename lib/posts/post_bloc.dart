@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:live_streaming/core/model/result.dart';
 import 'package:live_streaming/locator.dart';
@@ -11,9 +12,37 @@ class PostBloc extends Bloc<PostBaseEvent, PostBaseState> {
   final PostService _postService = Locator<PostService>();
 
   static final Logger _logger = Logger();
+  final ScrollController scrollController = ScrollController();
 
   PostBloc() : super(const PostInitialState()) {
+    scrollController.addListener(() {
+      final max = scrollController.position.maxScrollExtent;
+      final current = scrollController.position.pixels;
+      if (max / current > 0.8) {
+        add(const PostNextPageEvent());
+      }
+    });
+
+    _postService.postlistener((post) {
+      final copied = state.posts;
+      final index = copied.indexOf(post);
+      if (index == -1) {
+        ///new post
+        copied.add(post);
+      } else {
+        copied[index] = post;
+      }
+
+      // copied.insert(0, post);
+      add(NewPostEvent(copied.reversed.toList()));
+      // emit(PostSu
+    });
+
     _logger.i("this is postbloc");
+    on<NewPostEvent>((event, emit) {
+      print("new post ${event.post..map((e) => e.content).toString()}");
+      emit(PostSuccesState(event.post));
+    });
     on<PostNextPageEvent>((_, emit) async {
       if (state is PostLoadingState) return;
       final List<Post> copied = state.posts.toList();
@@ -37,5 +66,12 @@ class PostBloc extends Bloc<PostBaseEvent, PostBaseState> {
     });
 
     add(const PostNextPageEvent());
+  }
+  @override
+  Future<void> close() {
+    scrollController.dispose();
+    _postService.destory();
+    // TODO: implement close
+    return super.close();
   }
 }

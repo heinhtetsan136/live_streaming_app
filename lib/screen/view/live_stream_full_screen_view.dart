@@ -6,7 +6,6 @@ import 'package:live_streaming/screen/view/live_stream_view.dart';
 import 'package:live_streaming/screen/view/widget/live_comment.dart';
 import 'package:live_streaming/screen/view/widget/live_count.dart';
 import 'package:live_streaming/screen/view/widget/live_remark.dart';
-import 'package:live_streaming/service/agora_sevice/base/agora_base_service.dart';
 import 'package:live_streaming/service/agora_sevice/impl/agora_host_service.dart';
 import 'package:live_streaming/service/ui_live_strem/model/ui_livecomment.dart';
 import 'package:starlight_utils/starlight_utils.dart';
@@ -24,24 +23,20 @@ Widget _builder(BuildContext context, UiLiveStreamComment comment) {
 
 class LiveStreamFullScreenView<T extends LiveStreamBaseBloc>
     extends StatelessWidget {
-  final AgoraBaseService service;
   const LiveStreamFullScreenView({
     super.key,
-    required this.service,
   });
 
   @override
   Widget build(BuildContext context) {
     final bloc = context.read<T>();
-    print("value1 is ${bloc.isClosed},${bloc.service}");
+    // print("value1 is ${bloc.isClosed},${bloc.service}");
     final commentHeight = context.height * 0.5;
     final screenWidth = context.width;
 
     return Stack(
       children: [
-        LiveStreamVideo<T>(
-          service: service,
-        ),
+        LiveStreamVideo<T>(),
         Positioned(
           left: 20,
           right: 20,
@@ -70,14 +65,14 @@ class LiveStreamFullScreenView<T extends LiveStreamBaseBloc>
                     ),
                   ],
                 ),
-                if (service is AgoraHostService) ...[
+                if (bloc.agoraBaseService is AgoraHostService) ...[
                   LiveEndButton<T>(),
                 ],
               ],
             ),
           ),
         ),
-        if (service is AgoraHostService)
+        if (bloc.agoraBaseService is AgoraHostService)
           Positioned(
             bottom: 0,
             child: SizedBox(

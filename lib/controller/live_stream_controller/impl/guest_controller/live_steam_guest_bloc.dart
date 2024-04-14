@@ -4,6 +4,7 @@ import 'package:live_streaming/controller/live_stream_controller/base/live_strea
 import 'package:live_streaming/controller/live_stream_controller/base/live_stream_base_state.dart';
 import 'package:live_streaming/controller/live_stream_controller/impl/guest_controller/live_stream_guest_event.dart';
 import 'package:live_streaming/controller/live_stream_controller/impl/guest_controller/live_stream_guest_state.dart';
+import 'package:live_streaming/service/agora_sevice/base/agora_base_service.dart';
 import 'package:live_streaming/service/ui_live_strem/impl/live_stream_guest%20_servic.dart';
 import 'package:live_streaming/service/ui_live_strem/model/livepayload.dart';
 import 'package:logger/logger.dart';
@@ -11,11 +12,12 @@ import 'package:logger/logger.dart';
 class LiveStreamGuestBloc
     extends LiveStreamBaseBloc<LiveStreamBaseEvent, LiveStreamBaseState> {
   static final _logger = Logger();
-
+  @override
+  final AgoraBaseService agoraBaseService;
   @override
   final LiveStreamGuestService service;
-  LiveStreamGuestBloc(this.service, LivePayload payload)
-      : super(const LiveStreamGuestInitialState(), service) {
+  LiveStreamGuestBloc(this.service, LivePayload payload, this.agoraBaseService)
+      : super(const LiveStreamGuestInitialState(), service, agoraBaseService) {
     super.payload = payload;
 
     on<LiveStreamGuestSendComment>((_, emit) async {
@@ -48,18 +50,19 @@ class LiveStreamGuestBloc
     add(const LiveStreamGuestJoinEvent());
   }
   @override
-  void listener(bool? value) {
-    if (value == null) return;
+  LiveStreamBaseState? streamstatuslistener(bool? value) {
+    if (value == null) return null;
     if (value) {
-      emit(const LiveStreamGuestJoinedState());
+      return const LiveStreamGuestJoinedState();
     } else {
-      emit(const LiveStreamGuestFailedToJoinState("unknown error"));
+      return const LiveStreamGuestFailedToJoinState("unknown error");
     }
     // TODO: implement listener
   }
 
   @override
   Future<void> close() {
+    print("close on guest");
     // service.dispose();
 
     // controller.dispose();

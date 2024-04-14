@@ -52,6 +52,7 @@ class HomeScreen extends StatelessWidget {
               postbloc.add(const PostNextPageEvent());
             },
             child: ListView.separated(
+              controller: postbloc.scrollController,
               padding: const EdgeInsets.only(bottom: 10),
               separatorBuilder: (_, i) => const SizedBox(
                 height: 10,

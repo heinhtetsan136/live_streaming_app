@@ -5,24 +5,27 @@ import 'package:logger/logger.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class LiveStreamUtilService {
+  String get usage => "live";
+
   final List<String> _listener = [];
 
   int get listenerCount => _listener.length;
   static final _logger = Logger();
-  static IO.Socket? _socket;
+  static final Map<String, IO.Socket?> _socket = {};
   set socket(IO.Socket? socket) {
-    _socket ??= socket;
+    _socket[usage] ??= socket;
   }
 
+  IO.Socket? get socket => _socket[usage];
   Future<bool> get isSocketReady {
     return _validate(() async {
       return true;
     }, () {
-      print("_socket ${_socket?.connected.toString()}");
-      if (_socket?.connected != true) {
-        print("_socket ${_socket?.connected.toString()}");
-        _socket?.disconnect();
-        _socket?.connect();
+      print("_socket ${socket?.connected.toString()}");
+      if (socket?.connected != true) {
+        // print("_socket ${_socket?.connected.toString()}");
+        socket?.disconnect();
+        socket?.connect();
       }
       return isSocketReady;
     });
@@ -45,12 +48,12 @@ class LiveStreamUtilService {
     _logger.i("this is listen");
     // _logger.i(event);
     _logger.i(_listener);
-    _logger.i("socket ${_socket?.connected}");
-    if (_socket == null) {
+    _logger.i("socket ${socket?.connected}");
+    if (socket == null) {
       _failCount++;
       return _runner(fail);
     }
-    if (_socket?.connected != true) {
+    if (socket?.connected != true) {
       _failCount++;
       return _runner(fail);
     }
@@ -59,32 +62,32 @@ class LiveStreamUtilService {
     return run();
   }
 
+  int? socketId;
   void _defaultEvent() {
-    _socket?.onConnectTimeout((data) {
+    socket?.onConnectTimeout((data) {
       _logger.e("ConnectTimeout $data");
     });
-    _socket?.onError((data) {
+    socket?.onError((data) {
       _logger.e("onErrr $data");
     });
-    _socket?.onConnectError((data) {
+    socket?.onConnectError((data) {
       _logger.e("onConnectError $data");
     });
-    _socket?.onConnect((data) {
+    socket?.onConnect((data) {
       _logger.i("Connected");
     });
-    _socket?.onConnecting((data) {
+    socket?.onConnecting((data) {
       _logger.i("Connecting");
     });
-    _socket?.on("connection", (data) {
+    socket?.on("connection", (data) {
+      socketId = int.tryParse(data["id"].toString());
       _logger.i("Connect Msg : $data");
     });
   }
 
   final AuthService _auth = Locator<AuthService>();
   Future<void> init() async {
-    if (_socket != null) {
-      destory();
-    }
+    destory();
 
     final token = await _auth.currentuser?.getIdToken();
     socket = IO.io(
@@ -101,7 +104,7 @@ class LiveStreamUtilService {
   void listen(String event, Function(dynamic) callback) {
     _validate(() async {
       _listener.add(event);
-      _socket?.on(event, callback);
+      socket?.on(event, callback);
     }, () async => listen(event, callback));
   }
 
@@ -109,7 +112,7 @@ class LiveStreamUtilService {
     _validate(() async {
       Future.delayed(
         const Duration(seconds: 2),
-        () => _socket?.emit(event, data),
+        () => socket?.emit(event, data),
       );
     }, () async => emit(event, data));
   }
@@ -118,7 +121,7 @@ class LiveStreamUtilService {
   //   init();
   // }
   void destory() {
-    _socket?.dispose();
+    socket?.dispose();
     socket = null;
   }
 }

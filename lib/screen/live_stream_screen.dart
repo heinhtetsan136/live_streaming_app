@@ -38,9 +38,7 @@ class LiveStreamScreen<T extends LiveStreamBaseBloc> extends StatelessWidget {
 
     if (service is AgoraHostService) {
       return Scaffold(
-        body: LiveStreamFullScreenView<T>(
-          service: service,
-        ),
+        body: LiveStreamFullScreenView<T>(),
       );
     }
 
@@ -69,9 +67,7 @@ class LiveStreamScreen<T extends LiveStreamBaseBloc> extends StatelessWidget {
           },
           builder: (context, state) {
             if (state is LiveStreamGuestJoinedState) {
-              return LiveStreamFullScreenView<LiveStreamGuestBloc>(
-                service: service,
-              );
+              return const LiveStreamFullScreenView<LiveStreamGuestBloc>();
             }
 
             if (state is LiveStreamGuestFailedToJoinState) {
@@ -149,6 +145,7 @@ class CommentSection<T extends LiveStreamBaseBloc> extends StatelessWidget {
             ///Home Work
             child: TextField(
               controller: bloc.controller,
+              focusNode: bloc.focusNode,
               minLines: 1,
               maxLines: 3,
               keyboardType: TextInputType.multiline,
@@ -164,6 +161,7 @@ class CommentSection<T extends LiveStreamBaseBloc> extends StatelessWidget {
                 ),
                 suffixIcon: IconButton(
                   onPressed: () {
+                    bloc.focusNode.unfocus();
                     bloc.add(LiveStreamGuestSendComment());
                   },
                   icon: const Icon(Icons.send),

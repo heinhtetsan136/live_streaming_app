@@ -39,6 +39,7 @@ class AgoraGuestService extends AgoraBaseService {
 
   @override
   Future<void> dispose() async {
+    print("close on ago guest");
     // TODO: implement dispose
     await onLive.close();
     AgoraGuestService._instance == null;
