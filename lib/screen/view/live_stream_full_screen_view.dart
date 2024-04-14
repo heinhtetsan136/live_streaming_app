@@ -33,6 +33,7 @@ class LiveStreamFullScreenView<T extends LiveStreamBaseBloc>
   @override
   Widget build(BuildContext context) {
     final bloc = context.read<T>();
+    print("value1 is ${bloc.isClosed},${bloc.service}");
     final commentHeight = context.height * 0.5;
     final screenWidth = context.width;
 
@@ -69,7 +70,9 @@ class LiveStreamFullScreenView<T extends LiveStreamBaseBloc>
                     ),
                   ],
                 ),
-                if (service is AgoraHostService) const LiveEndButton(),
+                if (service is AgoraHostService) ...[
+                  LiveEndButton<T>(),
+                ],
               ],
             ),
           ),

@@ -7,7 +7,6 @@ import 'package:live_streaming/controller/live_stream_controller/base/live_strea
 import 'package:live_streaming/controller/live_stream_controller/impl/guest_controller/live_steam_guest_bloc.dart';
 import 'package:live_streaming/controller/live_stream_controller/impl/guest_controller/live_stream_guest_event.dart';
 import 'package:live_streaming/controller/live_stream_controller/impl/guest_controller/live_stream_guest_state.dart';
-import 'package:live_streaming/controller/live_stream_controller/impl/host_controller/live_stream_host_bloc.dart';
 import 'package:live_streaming/controller/live_stream_controller/impl/host_controller/live_stream_host_event.dart';
 import 'package:live_streaming/controller/live_view-controller/live_view_cubit.dart';
 import 'package:live_streaming/controller/live_view-controller/live_view_state.dart';
@@ -35,6 +34,9 @@ class LiveStreamScreen<T extends LiveStreamBaseBloc> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bloc = context.read<T>();
+    print(
+        "value2 is ${bloc.isClosed},${bloc.service}${bloc.state}${bloc.toString()}");
     if (service is AgoraHostService) {
       return Scaffold(
         body: LiveStreamFullScreenView<T>(
@@ -295,12 +297,13 @@ class CommentBox extends StatelessWidget {
   }
 }
 
-class LiveEndButton extends StatelessWidget {
+class LiveEndButton<T extends LiveStreamBaseBloc> extends StatelessWidget {
   const LiveEndButton({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final bloc = context.read<LiveStreamHostBloc>();
+    final bloc = context.read<T>();
+    print("value is ${bloc.isClosed},${bloc.service}");
     return SizedBox(
       width: 60,
       height: 30,

@@ -19,6 +19,25 @@ import 'package:live_streaming/service/ui_live_strem/impl/live_stream_guest%20_s
 import 'package:live_streaming/service/ui_live_strem/impl/live_stream_host_service.dart';
 import 'package:live_streaming/service/ui_live_strem/model/livepayload.dart';
 
+LiveStreamHostBloc _findHostBloc() {
+  final isRegistered = Locator.isRegistered<LiveStreamHostBloc>();
+  if (isRegistered) {
+    Locator.resetLazySingleton<LiveStreamHostBloc>(
+      disposingFunction: (bloc) {
+        return bloc.close();
+      },
+    );
+  } else {
+    Locator.registerLazySingleton(
+      () => LiveStreamHostBloc(
+        LiveStreamHostService(),
+      ),
+    );
+  }
+
+  return Locator<LiveStreamHostBloc>();
+}
+
 Route<dynamic>? router(RouteSettings settings) {
   if (Locator<AuthService>().currentuser == null) {
     return _routebuilder(
@@ -31,12 +50,39 @@ Route<dynamic>? router(RouteSettings settings) {
       return _routebuilder(
         // const PostCreateScreen(),
         BlocProvider(
-          create: (_) => LiveStreamHostBloc(LiveStreamHostService()),
+          create: (_) => _findHostBloc(),
           child: const PostCreateScreen(),
         ),
         settings,
       );
     case RouteNames.host:
+      // final value1 = settings.arguments;
+      // print("value is ${value1.toString()}");
+      // print("value loc ${Locator.isRegistered<LiveStreamHostBloc>()}");
+      // if (!Locator.isRegistered<LiveStreamHostBloc>()) {
+      //   return _routebuilder(
+      //     const Scaffold(
+      //       body: Center(
+      //         child: Text("Trya "),
+      //       ),
+      //     ),
+      //     settings,
+      //   );
+      // }
+      // final value = Locator<LiveStreamHostBloc>();
+      // return _routebuilder(
+      //   MultiBlocProvider(
+      //     providers: [
+      //       BlocProvider(create: (_) => LiveViewCubit()),
+      //       BlocProvider.value(
+      //         value: value1,
+      //       ),
+      //     ],
+      //     child: LiveStreamScreen<LiveStreamHostBloc>(
+      //         service: Locator<AgoraHostService>()),
+      //   ),
+      //   settings,
+      // );
       final value = settings.arguments;
       if (value is! LiveStreamHostBloc) {
         return _routebuilder(

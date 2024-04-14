@@ -34,7 +34,7 @@ abstract class LiveStreamBaseBloc<E, S> extends Bloc<E, S> {
   @override
   Future<void> close() {
     controller.dispose();
-    // _subscription?.cancel();
+    _subscription?.cancel();
     // service.dispose();
 
     // TODO: implement close

@@ -120,7 +120,7 @@ class PostCreateScreen extends StatelessWidget {
                 return;
               }
               if (state is LiveStreamContentCreateSuccessState) {
-                StarlightUtils.pushReplacementNamed(
+                StarlightUtils.pushNamed(
                   RouteNames.host,
                   arguments: liveStreamBloc,
                 );

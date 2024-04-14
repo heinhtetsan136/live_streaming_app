@@ -17,6 +17,7 @@ class LiveStreamHostService extends LiveStreamBaseService {
       final isStarted = int.parse(p0.toString()) == 200;
       _listenliveEvent();
       setLiveStreamStatus(isStarted);
+      comsumeLiveEvent();
     });
   }
   Future<Result> endLiveStream(int liveId) async {

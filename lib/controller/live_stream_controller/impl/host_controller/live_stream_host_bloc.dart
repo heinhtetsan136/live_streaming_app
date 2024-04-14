@@ -7,13 +7,13 @@ import 'package:live_streaming/controller/live_stream_controller/impl/host_contr
 import 'package:live_streaming/controller/live_stream_controller/impl/host_controller/live_stream_host_state.dart';
 import 'package:live_streaming/service/ui_live_strem/impl/live_stream_host_service.dart';
 import 'package:live_streaming/service/ui_live_strem/model/livepayload.dart';
-import 'package:logger/logger.dart';
 import 'package:starlight_utils/starlight_utils.dart';
 
 class LiveStreamHostBloc
     extends LiveStreamBaseBloc<LiveStreamBaseEvent, LiveStreamBaseState> {
+  LiveStreamHostService get liveStreamHostService => service;
   // LiveStreamHostService service;
-  static final _logger = Logger();
+  // static final _logger = Logger();
   @override
   final TextEditingController controller = TextEditingController();
   final FocusNode focusNode = FocusNode();
@@ -26,7 +26,7 @@ class LiveStreamHostBloc
     if (event == null) return;
     print("start live stream $event");
     if (!event) {
-      _logger.e("error is error $event");
+      // _logger.e("error is error $event");
       emit(const LiveStreamContentCreateErrorState("failed to lived"));
       return;
     }
@@ -37,19 +37,19 @@ class LiveStreamHostBloc
   final LiveStreamHostService service;
   LiveStreamHostBloc(this.service)
       : super(const LiveStreamContentCreateInitalState(), service) {
-    _logger.i(state);
+    // _logger.i(state);
 
     on<LiveStreamContentCreateEvent>((event, emit) async {
       if (state is LiveStreamContentCreateLoadingState) return;
       emit(const LiveStreamContentCreateLoadingState());
       final result = await service.postCreate(controller.text);
       if (result.hasError) {
-        _logger.e("error1 is error ${result.error.toString()}");
+        // _logger.e("error1 is error ${result.error.toString()}");
         emit(LiveStreamContentCreateErrorState(
             result.error!.messsage.toString()));
         return;
       }
-      _logger.i(result.data);
+      // _logger.i(result.data);
 
       payload = result.data;
       service.startLiveStream(payload!.liveID);
@@ -57,10 +57,12 @@ class LiveStreamHostBloc
       // emit(const LiveStreamContentCreateSuccessState());
     });
     on<LiveSteamEndEvent>((event, emit) async {
-      print("end");
+      assert(payload != null);
+      print("end event");
+      print("end1");
       final result = await service.endLiveStream(payload!.liveID);
 
-      _logger.i("enddd  ${result.toString()}");
+      // _logger.i("enddd  ${result.toString()}");
       if (result.hasError) {
         Fluttertoast.showToast(msg: "${result.error}");
         return;
@@ -75,11 +77,20 @@ class LiveStreamHostBloc
     if (value) {
       emit(const LiveStreamPostCreateReady());
     } else {
-      _logger.e("error2 is error $value");
+      // _logger.e("error2 is error $value");
       emit(const LiveStreamContentCreateErrorState("Connection Time OUt"));
     }
 
     // TODO: implement readystate
+  }
+
+  @override
+  Future<void> close() {
+    // service.dispose();
+    print("close host");
+    // controller.dispose();
+    // TODO: implement close
+    return super.close();
   }
 
   @override

@@ -47,7 +47,7 @@ abstract class LiveStreamBaseService extends LiveStreamUtilService {
 
   final List<UiLiveStreamComment> _usercomments = [];
   void setComment(dynamic comment) {
-    _logger.i("commecnt ingusesctc  $comment");
+    _logger.i("commecnt ingusesctc  ${comment.toString()}");
     if (comment is List<UiLiveStreamComment>) {
       _comment.sink.add(_usercomments);
       return;
@@ -109,7 +109,7 @@ abstract class LiveStreamBaseService extends LiveStreamUtilService {
     _viewCount.close();
     _comment.close();
     _userJoin.close();
-    // _stream.close();
+    _stream.close();
     // TODO: implement dispose
     super.dispose();
   }

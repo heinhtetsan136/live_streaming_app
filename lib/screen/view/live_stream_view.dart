@@ -50,12 +50,6 @@ class _LiveStreamVideoState<T extends LiveStreamBaseBloc>
   }
 
   @override
-  void dispose() {
-    widget.service.close();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     if (widget.service is AgoraHostService) {
       return AgoraVideoView(
