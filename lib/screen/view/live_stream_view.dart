@@ -22,13 +22,13 @@ class LiveStreamVideo<T extends LiveStreamBaseBloc> extends StatefulWidget {
 class _LiveStreamVideoState<T extends LiveStreamBaseBloc>
     extends State<LiveStreamVideo> {
   static final _logger = Logger();
-  late final T livestreambloc = context.read<T>();
+  T get livestreambloc => context.read<T>();
   // late final T liveStreamBloc = context.read<T>();
 
   @override
   void initState() {
     super.initState();
-    init();
+    if (mounted) init();
   }
 
   Future<void> init() async {
@@ -51,6 +51,13 @@ class _LiveStreamVideoState<T extends LiveStreamBaseBloc>
 
   @override
   Widget build(BuildContext context) {
+    void a() {
+      print(
+          "value2 is ${livestreambloc.isClosed},${livestreambloc.service}${livestreambloc.state}${livestreambloc.toString()}");
+      Future.delayed(const Duration(milliseconds: 100), a);
+    }
+
+    a();
     if (widget.service is AgoraHostService) {
       return AgoraVideoView(
         controller: widget.service.videoViewcontroller,
@@ -70,6 +77,7 @@ class _LiveStreamVideoState<T extends LiveStreamBaseBloc>
         }
 
         return AgoraVideoView(
+          key: UniqueKey(),
           controller: widget.service is AgoraHostService
               ? widget.service.videoViewcontroller
               : VideoViewController.remote(

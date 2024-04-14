@@ -7,7 +7,6 @@ import 'package:live_streaming/controller/live_stream_controller/impl/host_contr
 import 'package:live_streaming/controller/live_stream_controller/impl/host_controller/live_stream_host_state.dart';
 import 'package:live_streaming/service/ui_live_strem/impl/live_stream_host_service.dart';
 import 'package:live_streaming/service/ui_live_strem/model/livepayload.dart';
-import 'package:starlight_utils/starlight_utils.dart';
 
 class LiveStreamHostBloc
     extends LiveStreamBaseBloc<LiveStreamBaseEvent, LiveStreamBaseState> {
@@ -67,7 +66,7 @@ class LiveStreamHostBloc
         Fluttertoast.showToast(msg: "${result.error}");
         return;
       }
-      StarlightUtils.pop();
+      // StarlightUtils.pop();
       Fluttertoast.showToast(msg: "sucessfully end");
     });
   }

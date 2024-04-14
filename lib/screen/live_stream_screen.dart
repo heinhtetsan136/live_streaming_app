@@ -35,8 +35,7 @@ class LiveStreamScreen<T extends LiveStreamBaseBloc> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bloc = context.read<T>();
-    print(
-        "value2 is ${bloc.isClosed},${bloc.service}${bloc.state}${bloc.toString()}");
+
     if (service is AgoraHostService) {
       return Scaffold(
         body: LiveStreamFullScreenView<T>(
@@ -57,7 +56,7 @@ class LiveStreamScreen<T extends LiveStreamBaseBloc> extends StatelessWidget {
       //   }
       // ),
       body: PopScope(
-        canPop: false,
+        canPop: true,
         onPopInvoked: (_) {},
         child: BlocConsumer<LiveStreamGuestBloc, LiveStreamBaseState>(
           listener: (context, state) async {

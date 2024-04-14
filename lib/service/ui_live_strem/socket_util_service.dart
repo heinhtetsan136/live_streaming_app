@@ -83,7 +83,7 @@ class LiveStreamUtilService {
   final AuthService _auth = Locator<AuthService>();
   Future<void> init() async {
     if (_socket != null) {
-      dispose();
+      destory();
     }
 
     final token = await _auth.currentuser?.getIdToken();
@@ -117,7 +117,7 @@ class LiveStreamUtilService {
   // LiveStreamUtilService(this.socket) {
   //   init();
   // }
-  void dispose() {
+  void destory() {
     _socket?.dispose();
     socket = null;
   }

@@ -12,7 +12,7 @@ import 'package:logger/logger.dart';
 class LiveStreamGuestService extends LiveStreamBaseService {
   static final _logger = Logger();
   LiveStreamGuestService() {
-    super.init();
+    init();
     super.listen("joinEvent", (p0) {
       final isJoined = int.parse(p0.toString()) == 200;
       _logger.i("this is guest ui $isJoined");

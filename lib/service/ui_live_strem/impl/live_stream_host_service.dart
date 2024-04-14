@@ -11,7 +11,7 @@ import 'package:logger/logger.dart';
 class LiveStreamHostService extends LiveStreamBaseService {
   LiveStreamHostService() {
     _logger.i("this is host");
-    super.init();
+    init();
     super.listen("hostEvent", (p0) {
       _logger.i("host event");
       final isStarted = int.parse(p0.toString()) == 200;

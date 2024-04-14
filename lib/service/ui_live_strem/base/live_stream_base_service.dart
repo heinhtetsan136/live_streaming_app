@@ -5,11 +5,14 @@ import 'package:dio/dio.dart';
 import 'package:live_streaming/core/error/error.dart';
 import 'package:live_streaming/core/model/result.dart';
 import 'package:live_streaming/locator.dart';
+import 'package:live_streaming/router/route_name.dart';
 import 'package:live_streaming/service/auth_service.dart/auth_sevice.dart';
 import 'package:live_streaming/service/ui_live_strem/model/ui_livecomment.dart';
 import 'package:live_streaming/service/ui_live_strem/socket_util_service.dart';
 import 'package:live_streaming/util/const/post_base_url.dart';
+import 'package:live_streaming/util/dialog/errror_dialog.dart';
 import 'package:logger/logger.dart';
+import 'package:starlight_utils/starlight_utils.dart';
 
 abstract class LiveStreamBaseService extends LiveStreamUtilService {
   final Dio dio = Locator<Dio>();
@@ -102,6 +105,10 @@ abstract class LiveStreamBaseService extends LiveStreamUtilService {
       // super.set
     }));
     listen("liveComment", setComment);
+    listen("end", (p0) async {
+      await showErrorDialog("End", "Live is over");
+      StarlightUtils.pushReplacementNamed(RouteNames.home);
+    });
   }
 
   @override
@@ -111,6 +118,6 @@ abstract class LiveStreamBaseService extends LiveStreamUtilService {
     _userJoin.close();
     _stream.close();
     // TODO: implement dispose
-    super.dispose();
+    destory();
   }
 }

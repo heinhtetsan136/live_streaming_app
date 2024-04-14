@@ -21,18 +21,11 @@ import 'package:live_streaming/service/ui_live_strem/model/livepayload.dart';
 
 LiveStreamHostBloc _findHostBloc() {
   final isRegistered = Locator.isRegistered<LiveStreamHostBloc>();
-  if (isRegistered) {
-    Locator.resetLazySingleton<LiveStreamHostBloc>(
-      disposingFunction: (bloc) {
-        return bloc.close();
-      },
-    );
-  } else {
+  if (!isRegistered) {
     Locator.registerLazySingleton(
-      () => LiveStreamHostBloc(
-        LiveStreamHostService(),
-      ),
-    );
+        () => LiveStreamHostBloc(LiveStreamHostService()));
+  } else {
+    Locator.resetLazySingleton<LiveStreamHostBloc>();
   }
 
   return Locator<LiveStreamHostBloc>();
@@ -47,10 +40,19 @@ Route<dynamic>? router(RouteSettings settings) {
 
   switch (settings.name) {
     case RouteNames.postCreate:
+      late LiveStreamHostBloc value;
+      final isRegistered = Locator.isRegistered<LiveStreamHostBloc>();
+      if (!isRegistered) {
+        Locator.registerLazySingleton(
+            () => LiveStreamHostBloc(LiveStreamHostService()));
+      } else {
+        Locator.resetLazySingleton<LiveStreamHostBloc>();
+      }
+      value = Locator<LiveStreamHostBloc>();
       return _routebuilder(
         // const PostCreateScreen(),
-        BlocProvider(
-          create: (_) => _findHostBloc(),
+        BlocProvider.value(
+          value: _findHostBloc(),
           child: const PostCreateScreen(),
         ),
         settings,
@@ -59,53 +61,53 @@ Route<dynamic>? router(RouteSettings settings) {
       // final value1 = settings.arguments;
       // print("value is ${value1.toString()}");
       // print("value loc ${Locator.isRegistered<LiveStreamHostBloc>()}");
-      // if (!Locator.isRegistered<LiveStreamHostBloc>()) {
-      //   return _routebuilder(
-      //     const Scaffold(
-      //       body: Center(
-      //         child: Text("Trya "),
-      //       ),
-      //     ),
-      //     settings,
-      //   );
-      // }
-      // final value = Locator<LiveStreamHostBloc>();
-      // return _routebuilder(
-      //   MultiBlocProvider(
-      //     providers: [
-      //       BlocProvider(create: (_) => LiveViewCubit()),
-      //       BlocProvider.value(
-      //         value: value1,
-      //       ),
-      //     ],
-      //     child: LiveStreamScreen<LiveStreamHostBloc>(
-      //         service: Locator<AgoraHostService>()),
-      //   ),
-      //   settings,
-      // );
-      final value = settings.arguments;
-      if (value is! LiveStreamHostBloc) {
+      if (!Locator.isRegistered<LiveStreamHostBloc>()) {
         return _routebuilder(
-            const Scaffold(
-              body: Center(
-                child: Text("Trya "),
-              ),
+          const Scaffold(
+            body: Center(
+              child: Text("Trya "),
             ),
-            settings);
-      }
-      return _routebuilder(
-          MultiBlocProvider(
-            providers: [
-              BlocProvider(create: (_) => LiveViewCubit()),
-              BlocProvider.value(value: value),
-            ],
-            child: LiveStreamScreen<LiveStreamHostBloc>(
-                service: Locator<AgoraHostService>()),
-            // child: LiveStreamScreen<LiveStreamHostBloc>(
-            //   service: Locator<AgoraHostService>(),
-            // ),
           ),
-          settings);
+          settings,
+        );
+      }
+      final value = Locator<LiveStreamHostBloc>();
+      return _routebuilder(
+        MultiBlocProvider(
+          providers: [
+            BlocProvider(create: (_) => LiveViewCubit()),
+            BlocProvider.value(
+              value: value,
+            ),
+          ],
+          child: LiveStreamScreen<LiveStreamHostBloc>(
+              service: Locator<AgoraHostService>()),
+        ),
+        settings,
+      );
+    // final value = settings.arguments;
+    // if (value is! LiveStreamHostBloc) {
+    //   return _routebuilder(
+    //       const Scaffold(
+    //         body: Center(
+    //           child: Text("Trya "),
+    //         ),
+    //       ),
+    //       settings);
+    // }
+    // return _routebuilder(
+    //     MultiBlocProvider(
+    //       providers: [
+    //         BlocProvider(create: (_) => LiveViewCubit()),
+    //         BlocProvider.value(value: value),
+    //       ],
+    //       child: LiveStreamScreen<LiveStreamHostBloc>(
+    //           service: Locator<AgoraHostService>()),
+    //       // child: LiveStreamScreen<LiveStreamHostBloc>(
+    //       //   service: Locator<AgoraHostService>(),
+    //       // ),
+    //     ),
+    //     settings);
     case RouteNames.home:
       return _routebuilder(_buildHomePage(), settings);
     case RouteNames.view:
