@@ -16,10 +16,11 @@ class PostResult {
   PostResult(this.post, [this.nextPage]);
 }
 
-class PostService extends LiveStreamUtilService {
+abstract class ApiBaseService extends LiveStreamUtilService {
+  String get baseUrl;
   final AuthService _authService = Locator<AuthService>();
   final Dio _dio;
-  PostService({
+  ApiBaseService({
     int page = 1,
     int limit = 20,
   })  : _page = page,
@@ -51,7 +52,7 @@ class PostService extends LiveStreamUtilService {
         return Result(error: GeneralError("Unauthorized"));
       }
       print("token is $token");
-      final response = await _dio.get("$POST_BASE_URL?page=$page&limit=$_limit",
+      final response = await _dio.get("$baseUrl?page=$page&limit=$_limit",
           options: Options(headers: {
             "Authorization": "Bearer $token",
           }));
@@ -123,4 +124,10 @@ class PostService extends LiveStreamUtilService {
     print("this is while ${posts.map((e) => e.content.toString())}");
     return Result(data: posts);
   }
+}
+
+class PostService extends ApiBaseService {
+  @override
+  // TODO: implement baseUrl
+  String get baseUrl => POST_BASE_URL;
 }
