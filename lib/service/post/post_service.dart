@@ -9,15 +9,16 @@ import 'package:live_streaming/service/auth_service.dart/auth_sevice.dart';
 import 'package:live_streaming/service/ui_live_strem/socket_util_service.dart';
 import 'package:live_streaming/util/const/post_base_url.dart';
 
-class PostResult {
-  final List<Post> post;
+class PostResult<T> {
+  final List<T> post;
   final int? nextPage;
 
   PostResult(this.post, [this.nextPage]);
 }
 
-abstract class ApiBaseService extends LiveStreamUtilService {
+abstract class ApiBaseService<T> extends LiveStreamUtilService {
   String get baseUrl;
+  T parser(dynamic data);
   final AuthService _authService = Locator<AuthService>();
   final Dio _dio;
   ApiBaseService({
@@ -41,7 +42,7 @@ abstract class ApiBaseService extends LiveStreamUtilService {
   int _page;
   final int _limit;
   bool _hasnextpage = true;
-  Future<Result<PostResult>> fetchPost(int page) async {
+  Future<Result<PostResult<T>>> fetchPost(int page) async {
     final user = _authService.currentuser;
     if (user == null) {
       return Result(error: GeneralError("Unauthorized"));
@@ -60,7 +61,7 @@ abstract class ApiBaseService extends LiveStreamUtilService {
       // print(body);
 
       print("this is next_page ${body['next_page'] != null}");
-      final post = (body['data'] as List).map(Post.fromJson).toList();
+      final post = (body['data'] as List).map(parser).toList();
       print("this is post ${post.length}");
       if (body['next_page'] != null) {
         return Result(data: PostResult(post, page + 1));
@@ -77,10 +78,10 @@ abstract class ApiBaseService extends LiveStreamUtilService {
   }
 
   int _trycount = 0;
-  Future<Result<List<Post>>> getAllPost() async {
+  Future<Result<List<T>>> getAllPost() async {
     if (!_hasnextpage && _trycount < 2) {
       _trycount += 1;
-      return Result(data: []);
+      return Result(error: GeneralError("NO More Post"));
     }
     _trycount = 0;
     final result = await fetchPost(_page);
@@ -92,11 +93,13 @@ abstract class ApiBaseService extends LiveStreamUtilService {
     } else {
       _hasnextpage = false;
     }
-    return Result(data: result.data.post);
+    return Result<List<T>>(
+      data: result.data.post,
+    );
   }
 
-  Future<Result<List<Post>>> refresh() async {
-    final List<Post> posts = [];
+  Future<Result<List<T>>> refresh() async {
+    final List<T> posts = [];
     print(posts.toString());
 
     int? page = 1;
@@ -118,16 +121,35 @@ abstract class ApiBaseService extends LiveStreamUtilService {
       }
       posts.addAll(result.data.post);
       print("this is post length ${posts.toString()}}");
-      print("this is ${posts.map((e) => e.content.toString())}");
     }
     // print("this is post length ${posts.toString()}");
-    print("this is while ${posts.map((e) => e.content.toString())}");
-    return Result(data: posts);
+
+    return Result(
+      data: posts,
+    );
   }
 }
 
-class PostService extends ApiBaseService {
+class PostService extends ApiBaseService<Post> {
   @override
   // TODO: implement baseUrl
   String get baseUrl => POST_BASE_URL;
+
+  @override
+  Post parser(data) {
+    return Post.fromJson(data);
+    // TODO: implement parser
+  }
+}
+
+class MyPostService extends ApiBaseService<Post> {
+  @override
+  // TODO: implement baseUrl
+  String get baseUrl => MY_POST_BASE_URL;
+
+  @override
+  Post parser(data) {
+    return Post.fromJson(data);
+    // TODO: implement parser
+  }
 }

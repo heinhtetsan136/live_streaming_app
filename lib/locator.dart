@@ -29,4 +29,5 @@ Future<void> setup() async {
   final dio = Dio();
   Locator.registerLazySingleton(() => dio);
   Locator.registerLazySingleton(() => PostService());
+  Locator.registerLazySingleton(() => MyPostService());
 }

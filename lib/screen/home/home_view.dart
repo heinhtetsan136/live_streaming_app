@@ -16,13 +16,13 @@ import 'package:live_streaming/service/post/post_service.dart';
 import 'package:live_streaming/service/ui_live_strem/model/livepayload.dart';
 import 'package:starlight_utils/starlight_utils.dart';
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+class HomeView extends StatelessWidget {
+  const HomeView({super.key});
 
   @override
   Widget build(BuildContext context) {
     final theme = context.theme;
-    final postbloc = context.read<PostBloc>();
+
     final postservice = Locator<PostService>();
     final homepagebloc = context.read<HomePageBloc>();
     return Scaffold(
@@ -37,40 +37,49 @@ class HomeScreen extends StatelessWidget {
         title: const Text("LiveStream Project"),
         actions: [IconButton(onPressed: () {}, icon: const Icon(Icons.search))],
       ),
-      body: BlocBuilder<PostBloc, PostBaseState>(
-        builder: (_, state) {
-          print(
-              "this is state is $state ${state.posts.map((e) => e.content.toString())}");
-          final posts = state.posts;
-          if (state is PostLoadingState) {
-            return const Center(
-              child: CupertinoActivityIndicator(),
-            );
-          }
-          return RefreshIndicator(
-            onRefresh: () async {
-              postbloc.add(const PostNextPageEvent());
-            },
-            child: ListView.separated(
-              controller: postbloc.scrollController,
-              padding: const EdgeInsets.only(bottom: 10),
-              separatorBuilder: (_, i) => const SizedBox(
-                height: 10,
-              ),
-              itemCount: posts.length,
-              itemBuilder: (_, i) {
-                print("post length =$i");
-                final post = posts[i];
-                print("this is ui post ${post.content.toString()}");
-                return PostCard(
-                  post: post,
-                );
-              },
-            ),
+      body: const ShowPost<PostBloc>(),
+    );
+  }
+}
+
+class ShowPost<T extends PostBaseBloc> extends StatelessWidget {
+  const ShowPost({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final postbloc = context.read<T>();
+    return BlocBuilder<T, PostBaseState>(
+      builder: (_, state) {
+        print(
+            "this is state is $state ${state.posts.map((e) => e.content.toString())}");
+        final posts = state.posts;
+        if (state is PostLoadingState) {
+          return const Center(
+            child: CupertinoActivityIndicator(),
           );
-        },
-      ),
-      bottomNavigationBar: const HomeBottomNav(),
+        }
+        return RefreshIndicator(
+          onRefresh: () async {
+            postbloc.add(const PostNextPageEvent());
+          },
+          child: ListView.separated(
+            controller: postbloc.scrollController,
+            padding: const EdgeInsets.only(bottom: 10),
+            separatorBuilder: (_, i) => const SizedBox(
+              height: 10,
+            ),
+            itemCount: posts.length,
+            itemBuilder: (_, i) {
+              print("post length =$i");
+              final post = posts[i];
+              print("this is ui post ${post.content.toString()}");
+              return PostCard(
+                post: post,
+              );
+            },
+          ),
+        );
+      },
     );
   }
 }

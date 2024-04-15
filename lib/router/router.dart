@@ -9,7 +9,7 @@ import 'package:live_streaming/locator.dart';
 import 'package:live_streaming/posts/post_bloc.dart';
 import 'package:live_streaming/router/route_name.dart';
 import 'package:live_streaming/screen/auth_screen.dart';
-import 'package:live_streaming/screen/home/home_screen.dart';
+import 'package:live_streaming/screen/home/home_screen_base.dart';
 import 'package:live_streaming/screen/live_stream_screen.dart';
 import 'package:live_streaming/screen/view/post_create/post_create_screen.dart';
 import 'package:live_streaming/service/agora_sevice/impl/agora_guest_service.dart';
@@ -149,7 +149,8 @@ Widget _buildHomePage() {
   return MultiBlocProvider(
     providers: [
       BlocProvider(create: (_) => HomePageBloc()),
-      BlocProvider(create: (_) => PostBloc())
+      BlocProvider(create: (_) => PostBloc()),
+      BlocProvider(create: (_) => MyPostBloc())
     ],
     child: const HomeScreen(),
   );

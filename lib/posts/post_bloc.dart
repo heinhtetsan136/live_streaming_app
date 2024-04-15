@@ -8,13 +8,13 @@ import 'package:live_streaming/posts/post_state.dart';
 import 'package:live_streaming/service/post/post_service.dart';
 import 'package:logger/logger.dart';
 
-class PostBloc extends Bloc<PostBaseEvent, PostBaseState> {
-  final PostService _postService = Locator<PostService>();
+abstract class PostBaseBloc extends Bloc<PostBaseEvent, PostBaseState> {
+  final ApiBaseService<Post> service;
 
   static final Logger _logger = Logger();
   final ScrollController scrollController = ScrollController();
 
-  PostBloc() : super(const PostInitialState()) {
+  PostBaseBloc(this.service) : super(const PostInitialState()) {
     scrollController.addListener(() {
       final max = scrollController.position.maxScrollExtent;
       final current = scrollController.position.pixels;
@@ -23,7 +23,7 @@ class PostBloc extends Bloc<PostBaseEvent, PostBaseState> {
       }
     });
 
-    _postService.postlistener((post) {
+    service.postlistener((post) {
       final copied = state.posts;
       final index = copied.indexOf(post);
       if (index == -1) {
@@ -32,9 +32,12 @@ class PostBloc extends Bloc<PostBaseEvent, PostBaseState> {
       } else {
         copied[index] = post;
       }
-
+      final sortcopied = copied
+        ..sort((p, c) {
+          return p.createdAt.compareTo(c.createdAt);
+        });
       // copied.insert(0, post);
-      add(NewPostEvent(copied.reversed.toList()));
+      add(NewPostEvent(sortcopied.toList()));
       // emit(PostSu
     });
 
@@ -44,7 +47,7 @@ class PostBloc extends Bloc<PostBaseEvent, PostBaseState> {
       emit(PostSuccesState(event.post));
     });
     on<PostNextPageEvent>((_, emit) async {
-      if (state is PostLoadingState) return;
+      if (state is PostLoadingState || state is PostSoftLoadingState) return;
       final List<Post> copied = state.posts.toList();
       _logger.i("this is postbloc ${copied.length}");
       _logger.i("this is copied ${copied.length}");
@@ -53,7 +56,7 @@ class PostBloc extends Bloc<PostBaseEvent, PostBaseState> {
       } else {
         emit(PostSoftLoadingState(copied));
       }
-      final Result<List<Post>> result = await _postService.getAllPost();
+      final Result<List<Post>> result = await service.getAllPost();
       if (result.hasError) {
         _logger.w(result.error?.messsage);
         _logger.e(result.error?.stackTrace);
@@ -70,8 +73,16 @@ class PostBloc extends Bloc<PostBaseEvent, PostBaseState> {
   @override
   Future<void> close() {
     scrollController.dispose();
-    _postService.destory();
+    service.destory();
     // TODO: implement close
     return super.close();
   }
+}
+
+class PostBloc extends PostBaseBloc {
+  PostBloc() : super(Locator<PostService>());
+}
+
+class MyPostBloc extends PostBaseBloc {
+  MyPostBloc() : super(Locator<MyPostService>());
 }
