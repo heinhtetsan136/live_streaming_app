@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:live_streaming/locator.dart';
 import 'package:live_streaming/router/route_name.dart';
 import 'package:live_streaming/service/auth_service.dart/auth_sevice.dart';
+import 'package:live_streaming/service/frebase/firestore.dart';
 import 'package:starlight_utils/starlight_utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -15,7 +16,7 @@ class SettingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final AuthService authService = Locator<AuthService>();
-    // final SettingService settingService = locator<SettingService>();
+    final SettingService settingService = Locator<SettingService>();
 
     return Scaffold(
       appBar: AppBar(
@@ -39,6 +40,9 @@ class SettingScreen extends StatelessWidget {
                 final url = data.photoURL;
 
                 return GestureDetector(
+                  onTap: () {
+                    StarlightUtils.pushNamed(RouteNames.profilesettting);
+                  },
                   // onTap: _goToProfileSetting,
                   child: ProfileCard(
                     shortName:
@@ -50,21 +54,38 @@ class SettingScreen extends StatelessWidget {
                 );
               },
             ),
-            const SwitchCard(
-                title: "Theme",
-                first: "light",
-                second: "dark",
-                current: "light",
-                firstWidget: Icon(Icons.brightness_4_rounded),
-                secondWidget: Icon(Icons.brightness_1)),
-
-            const SwitchCard(
-                title: "Mute Audio",
-                first: "on",
-                second: "off",
-                current: "on",
-                firstWidget: Icon(Icons.volume_up),
-                secondWidget: Icon(Icons.volume_down)),
+            StreamBuilder(
+                stream: settingService.setting(),
+                builder: (_, snap) {
+                  final data = snap.data;
+                  return SwitchCard(
+                      onTap: (value) async {
+                        final result =
+                            await settingService.Write("theme", value);
+                        // print("theme $result");
+                      },
+                      title: "Theme",
+                      first: "light",
+                      second: "dark",
+                      current: data?.theme ?? "light",
+                      firstWidget: const Icon(Icons.brightness_5),
+                      secondWidget: const Icon(Icons.brightness_2));
+                }),
+            StreamBuilder(
+                stream: settingService.setting(),
+                builder: (_, snap) {
+                  final data = snap.data;
+                  return SwitchCard(
+                      onTap: (value) async {
+                        await settingService.Write("isSound", value);
+                      },
+                      title: "Mute Audio",
+                      first: true,
+                      second: false,
+                      current: data?.isSound ?? true,
+                      firstWidget: const Icon(Icons.volume_up),
+                      secondWidget: const Icon(Icons.volume_down));
+                }),
 
             OnTapCard(
               title: "Term & Condition",
@@ -197,6 +218,7 @@ class SwitchCard<T> extends StatelessWidget {
   final T second;
   final T current;
   final Widget firstWidget, secondWidget;
+  final Function(T)? onTap;
   const SwitchCard(
       {super.key,
       required this.title,
@@ -204,7 +226,8 @@ class SwitchCard<T> extends StatelessWidget {
       required this.second,
       required this.current,
       required this.firstWidget,
-      required this.secondWidget});
+      required this.secondWidget,
+      required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -241,11 +264,12 @@ class SwitchCard<T> extends StatelessWidget {
         ),
         trailing: AnimatedToggleSwitch.dual(
           onChanged: (value) {
-            // this.onTap?.call(value);
+            this.onTap?.call(value);
           },
           onTap: (t) {
-            // final v = t.tapped?.value;
-            // if (v != null) this.onTap?.call(v);
+            print(t.tapped?.value);
+            final v = t.tapped?.value;
+            if (v != null) this.onTap?.call(v);
           },
           style: const ToggleStyle(
             backgroundColor: Color.fromRGBO(230, 230, 230, 1),

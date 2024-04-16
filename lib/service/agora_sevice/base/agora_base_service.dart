@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
+import 'package:live_streaming/locator.dart';
+import 'package:live_streaming/service/frebase/firestore.dart';
 import 'package:logger/logger.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -66,6 +68,7 @@ class AgoraHandler {
 const _waiting = 0;
 
 abstract class AgoraBaseService {
+  final SettingService settingService = Locator<SettingService>();
   static Logger logger = Logger();
   late final RtcEngine engine;
   AgoraBaseService() {
@@ -74,6 +77,9 @@ abstract class AgoraBaseService {
 
   int _state = 0;
   int get status => _state;
+  bool _withSound = true;
+  final StreamController<bool> _audioStream = StreamController();
+  Stream<bool> get audioStream => _audioStream.stream;
   // Future<void> host() {
   //   return engine.setClientRole(role: ClientRoleType.clientRoleBroadcaster);
   // }
@@ -84,14 +90,31 @@ abstract class AgoraBaseService {
   ClientRoleType get clientRole;
   Future<void> ready() async {
     assert(status == 1 || _handler != null);
-    _state = 2;
+
     logger.i("Ready");
     engine.registerEventHandler(_handler!);
     await engine.setClientRole(role: clientRole);
-    await engine.enableVideo();
-    await engine.enableAudio();
+    if (clientRole == ClientRoleType.clientRoleAudience) {
+      final setting = await settingService.Read();
+      _withSound = setting.isSound;
+      await _audio();
+    }
 
+    _state = 2;
     logger.i(status);
+  }
+
+  Future<void> _audio() async {
+    _audioStream.sink.add(_withSound);
+    if (_withSound) {
+      await engine.enableAudio();
+    }
+    await engine.disableAudio();
+  }
+
+  Future<void> audioToggle() async {
+    _withSound != _withSound;
+    await _audio();
   }
 
   String? channel;
@@ -186,10 +209,13 @@ abstract class AgoraBaseService {
   Future<void> close() async {
     assert(status > 0);
     _state = 0;
+    _withSound = true;
     engine.unregisterEventHandler(_handler!);
     await engine.leaveChannel();
     await engine.release();
   }
 
-  Future<void> dispose();
+  Future<void> dispose() async {
+    _audioStream.close();
+  }
 }

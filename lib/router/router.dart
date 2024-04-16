@@ -12,6 +12,7 @@ import 'package:live_streaming/screen/auth_screen.dart';
 import 'package:live_streaming/screen/home/home_screen_base.dart';
 import 'package:live_streaming/screen/live_stream_screen.dart';
 import 'package:live_streaming/screen/view/post_create/post_create_screen.dart';
+import 'package:live_streaming/screen/view/screen/profile_settings_screen.dart';
 import 'package:live_streaming/screen/view/screen/setting_screen.dart';
 import 'package:live_streaming/service/agora_sevice/impl/agora_guest_service.dart';
 import 'package:live_streaming/service/agora_sevice/impl/agora_host_service.dart';
@@ -58,6 +59,8 @@ Route<dynamic>? router(RouteSettings settings) {
         ),
         settings,
       );
+    case RouteNames.profilesettting:
+      return _routebuilder(const ProfileSettingScreen(), settings);
     case RouteNames.settings:
       return _routebuilder(const SettingScreen(), settings);
     case RouteNames.host:

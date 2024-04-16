@@ -4,5 +4,6 @@ class RouteNames {
       view = "/view",
       host = "/host",
       postCreate = '/posts',
-      settings = "/settings";
+      settings = "/settings",
+      profilesettting = "/profilesettings";
 }

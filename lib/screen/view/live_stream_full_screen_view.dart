@@ -67,7 +67,9 @@ class LiveStreamFullScreenView<T extends LiveStreamBaseBloc>
                 ),
                 if (bloc.agoraBaseService is AgoraHostService) ...[
                   LiveEndButton<T>(),
-                ],
+                ] else ...[
+                  LiveAudioToggle<T>()
+                ]
               ],
             ),
           ),
@@ -96,5 +98,25 @@ class LiveStreamFullScreenView<T extends LiveStreamBaseBloc>
           ),
       ],
     );
+  }
+}
+
+class LiveAudioToggle<T extends LiveStreamBaseBloc> extends StatelessWidget {
+  const LiveAudioToggle({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final T bloc = context.read<T>();
+    return StreamBuilder(
+        stream: bloc.agoraBaseService.audioStream,
+        builder: (_, snap) {
+          return IconButton(
+              onPressed: () {
+                bloc.agoraBaseService.audioToggle();
+              },
+              icon: snap.data == true
+                  ? const Icon(Icons.volume_up)
+                  : const Icon(Icons.volume_down));
+        });
   }
 }

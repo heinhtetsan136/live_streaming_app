@@ -1,7 +1,9 @@
 import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:live_streaming/core/error/error.dart';
 import 'package:live_streaming/core/model/result.dart';
 import 'package:live_streaming/locator.dart';
@@ -9,9 +11,13 @@ import 'package:live_streaming/service/agora_sevice/base/agora_base_service.dart
 
 class AuthService {
   final FirebaseAuth _auth;
+  final ImagePicker _imagepicker;
+  final FirebaseStorage _database;
   AuthService()
       : _auth = FirebaseAuth.instance,
-        _googleSignIn = GoogleSignIn.standard();
+        _googleSignIn = GoogleSignIn.standard(),
+        _imagepicker = Locator<ImagePicker>(),
+        _database = Locator<FirebaseStorage>();
   final GoogleSignIn _googleSignIn;
   // final FacebookAuth _facebookAuth;
   User? get currentuser => _auth.currentUser;
@@ -53,6 +59,24 @@ class AuthService {
     } catch (e) {
       return Result(error: GeneralError(e.toString()));
     }
+  }
+
+  Future<void> UpdateDisplayName(String name) async {
+    await currentuser?.updateDisplayName(name);
+  }
+
+  Future<void> UpdateProfile() async {
+    final user = currentuser;
+    if (user == null) return;
+    final image = await _imagepicker.pickImage(source: ImageSource.gallery);
+    if (image == null) return;
+    final oldimage = user.photoURL;
+    if (oldimage?.startsWith("users/") == true) {
+      await _database.ref(oldimage).delete();
+    }
+    final profilePath = "users/${user.uid}_${DateTime.now().toIso8601String()}";
+    await _database.ref(profilePath).putFile(File(image.path));
+    await user.updatePhotoURL(profilePath);
   }
 
   Future<void> logout() async {
