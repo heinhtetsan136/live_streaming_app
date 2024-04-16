@@ -32,6 +32,7 @@ abstract class PostBaseBloc extends Bloc<PostBaseEvent, PostBaseState> {
       } else {
         copied[index] = post;
       }
+      print("Post length ${copied.length}");
       final sortcopied = copied
         ..sort((p, c) {
           return p.createdAt.compareTo(c.createdAt);
@@ -42,6 +43,13 @@ abstract class PostBaseBloc extends Bloc<PostBaseEvent, PostBaseState> {
     });
 
     _logger.i("this is postbloc");
+    on<RefreshEvent>((event, emit) async {
+      if (state.posts.isEmpty) {
+        emit(PostLoadingState(state.posts));
+      }
+      final Result<List<Post>> result = await service.refresh();
+      emit(PostSuccesState(result.data));
+    });
     on<NewPostEvent>((event, emit) {
       print("new post ${event.post..map((e) => e.content).toString()}");
       emit(PostSuccesState(event.post));
@@ -57,12 +65,15 @@ abstract class PostBaseBloc extends Bloc<PostBaseEvent, PostBaseState> {
         emit(PostSoftLoadingState(copied));
       }
       final Result<List<Post>> result = await service.getAllPost();
+      print(
+          "rESUlt is ${result.data.map((e) => e.content.toString())}error${result.error}");
       if (result.hasError) {
         _logger.w(result.error?.messsage);
         _logger.e(result.error?.stackTrace);
         emit(PostErrorState(copied, result.error?.messsage));
         return;
       }
+
       _logger.i("this is copied ${copied.map((e) => e.content.toString())}");
       copied.addAll(result.data);
       emit(PostSuccesState(copied));

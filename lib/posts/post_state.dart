@@ -23,7 +23,8 @@ class PostSoftLoadingState extends PostBaseState {
 }
 
 class PostSuccesState extends PostBaseState {
-  const PostSuccesState(super.posts);
+  final createdat = DateTime.now();
+  PostSuccesState(super.posts);
 }
 
 class PostErrorState extends PostBaseState {
@@ -31,5 +32,5 @@ class PostErrorState extends PostBaseState {
   const PostErrorState(super.posts, this.message);
   @override
   // TODO: implement props
-  List<Object?> get props => [...posts, message];
+  List<Object?> get props => [...super.props, message];
 }

@@ -54,4 +54,12 @@ class AuthService {
       return Result(error: GeneralError(e.toString()));
     }
   }
+
+  Future<void> logout() async {
+    try {
+      await _auth.signOut();
+    } catch (e) {
+      ///
+    }
+  }
 }

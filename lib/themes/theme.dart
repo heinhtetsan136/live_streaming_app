@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 abstract class AppStandardTheme {
   Color get scaffoldBgColor;
-
+  Color get scaffoldFgColor;
   Color get acitveColor;
   Color get unselectedColor;
   Color get bottomNavBgColor;
@@ -29,6 +29,12 @@ abstract class AppStandardTheme {
         floatingActionButtonTheme: FloatingActionButtonThemeData(
           backgroundColor: acitveColor,
           foregroundColor: textColor,
+        ),
+        listTileTheme: ListTileThemeData(
+          tileColor: scaffoldFgColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
         ),
       );
 }

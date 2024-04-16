@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:live_streaming/firebase_options.dart';
 import 'package:live_streaming/service/agora_sevice/impl/agora_guest_service.dart';
@@ -30,4 +31,5 @@ Future<void> setup() async {
   Locator.registerLazySingleton(() => dio);
   Locator.registerLazySingleton(() => PostService());
   Locator.registerLazySingleton(() => MyPostService());
+  Locator.registerLazySingleton(() => FirebaseStorage.instance);
 }

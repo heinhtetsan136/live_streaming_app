@@ -26,12 +26,7 @@ class HomeView extends StatelessWidget {
     final postservice = Locator<PostService>();
     final homepagebloc = context.read<HomePageBloc>();
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          StarlightUtils.pushNamed(RouteNames.postCreate);
-        },
-        child: const Icon(Icons.edit),
-      ),
+      floatingActionButton: const PostCreatedButton(),
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: const Text("LiveStream Project"),
@@ -60,7 +55,7 @@ class ShowPost<T extends PostBaseBloc> extends StatelessWidget {
         }
         return RefreshIndicator(
           onRefresh: () async {
-            postbloc.add(const PostNextPageEvent());
+            postbloc.add(const RefreshEvent());
           },
           child: ListView.separated(
             controller: postbloc.scrollController,
@@ -80,6 +75,20 @@ class ShowPost<T extends PostBaseBloc> extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class PostCreatedButton extends StatelessWidget {
+  const PostCreatedButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return FloatingActionButton(
+      onPressed: () {
+        StarlightUtils.pushNamed(RouteNames.postCreate);
+      },
+      child: const Icon(Icons.edit),
     );
   }
 }

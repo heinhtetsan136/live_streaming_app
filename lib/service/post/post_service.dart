@@ -29,12 +29,12 @@ abstract class ApiBaseService<T> extends LiveStreamUtilService {
         _dio = Locator<Dio>() {
     init();
   }
+  bool postpredicate(int postOwner, int? socketId);
   void postlistener(void Function(Post post) callback) {
     listen("post", (p0) {
       try {
         final post = Post.fromJson(p0);
-        if (post.userId == socketId) return;
-        callback(Post.fromJson(p0));
+        if (postpredicate(post.userId, socketId)) callback(post);
       } catch (e) {}
     });
   }
@@ -132,6 +132,12 @@ abstract class ApiBaseService<T> extends LiveStreamUtilService {
 
 class PostService extends ApiBaseService<Post> {
   @override
+  bool postpredicate(int postOwner, int? socketId) {
+    // TODO: implement postpredicate
+    return postOwner != socketId;
+  }
+
+  @override
   // TODO: implement baseUrl
   String get baseUrl => POST_BASE_URL;
 
@@ -143,6 +149,12 @@ class PostService extends ApiBaseService<Post> {
 }
 
 class MyPostService extends ApiBaseService<Post> {
+  @override
+  bool postpredicate(int postOwner, int? socketId) {
+    // TODO: implement postpredicate
+    return postOwner == socketId;
+  }
+
   @override
   // TODO: implement baseUrl
   String get baseUrl => MY_POST_BASE_URL;

@@ -13,6 +13,10 @@ class NewPostEvent extends PostBaseEvent {
   final List<Post> post;
   NewPostEvent(this.post);
 }
+
+class RefreshEvent extends PostBaseEvent {
+  const RefreshEvent();
+}
 // class PostRefreshEvent extends PostBaseEvent {
 //   const PostRefreshEvent();
 // }

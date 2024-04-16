@@ -3,5 +3,6 @@ class RouteNames {
       home = "/home",
       view = "/view",
       host = "/host",
-      postCreate = '/posts';
+      postCreate = '/posts',
+      settings = "/settings";
 }

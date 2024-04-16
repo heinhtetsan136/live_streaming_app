@@ -3,7 +3,9 @@ import 'package:live_streaming/themes/theme.dart';
 
 class AppLightTheme extends AppStandardTheme {
   @override
-  Color get scaffoldBgColor => const Color.fromARGB(239, 233, 232, 230);
+  Color get scaffoldFgColor => const Color.fromRGBO(255, 255, 255, 1);
+  @override
+  Color get scaffoldBgColor => const Color.fromRGBO(239, 239, 243, 1);
 
   @override
   Color get acitveColor => const Color.fromRGBO(250, 18, 20, 1);
@@ -25,6 +27,8 @@ class AppLightTheme extends AppStandardTheme {
 }
 
 class AppDarkTheme extends AppStandardTheme {
+  @override
+  Color get scaffoldFgColor => const Color.fromRGBO(28, 28, 29, 1);
   @override
   Color get scaffoldBgColor => const Color.fromRGBO(255, 254, 253, 0.95);
 
