@@ -12,12 +12,14 @@ class LiveStreamHostService extends LiveStreamBaseService {
   LiveStreamHostService() {
     _logger.i("this is host");
     init();
-    super.listen("hostEvent", (p0) {
+    listen("hostEvent", (p0) {
       _logger.i("host event");
       final isStarted = int.parse(p0.toString()) == 200;
-      _listenliveEvent();
+      // _listenliveEvent();
       setLiveStreamStatus(isStarted);
-      comsumeLiveEvent();
+      if (isStarted) {
+        comsumeLiveEvent();
+      }
     });
   }
   Future<Result> endLiveStream(int liveId) async {
@@ -57,7 +59,8 @@ class LiveStreamHostService extends LiveStreamBaseService {
         ),
         data: FormData.fromMap({"content": content}),
       );
-      _logger.i(response.data);
+      _logger.wtf("host service is ${response.toString()}");
+      _logger.i("host service is ${response.data}");
       return Result(data: LivePayload.fromJson(response.data));
     } on DioException catch (e) {
       return Result(
@@ -77,19 +80,19 @@ class LiveStreamHostService extends LiveStreamBaseService {
   // }
 
   void startLiveStream(int liveId) {
-    _logger.i("emit host event");
+    // _logger.i("result emit host event $liveId");
     super.emit("host", "$liveId");
   }
 
-  void _listenliveEvent() {
-    super.listen("viewCount", ((p0) {
-      super.setViewCount(int.parse(p0.toString()));
-    }));
-    super.listen("join", ((p0) {
-      _logger.i(p0.toString());
-    }));
-    super.listen("LiveComment", ((p0) {
-      setComment(p0.toString());
-    }));
-  }
+  // void _listenliveEvent() {
+  //   super.listen("viewCount", ((p0) {
+  //     super.setViewCount(int.parse(p0.toString()));
+  //   }));
+  //   super.listen("join", ((p0) {
+  //     _logger.i(p0.toString());
+  //   }));
+  //   super.listen("LiveComment", ((p0) {
+  //     setComment(p0.toString());
+  //   }));
+  // }
 }

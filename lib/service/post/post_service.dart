@@ -165,3 +165,23 @@ class MyPostService extends ApiBaseService<Post> {
     // TODO: implement parser
   }
 }
+
+class SearchPostService extends ApiBaseService<Post> {
+  String search = "";
+
+  @override
+  // TODO: implement baseUrl
+  String get baseUrl => "${Search_POST_BASE_URL}search";
+
+  @override
+  Post parser(data) {
+    // TODO: implement parser
+    return Post.fromJson(data);
+  }
+
+  @override
+  bool postpredicate(int postOwner, int? socketId) {
+    // TODO: implement postpredicate
+    return postOwner == socketId;
+  }
+}

@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:live_streaming/locator.dart';
 import 'package:live_streaming/service/frebase/firestore.dart';
-import 'package:logger/logger.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 Future requestPermission() async {
@@ -68,12 +67,12 @@ class AgoraHandler {
 const _waiting = 0;
 
 abstract class AgoraBaseService {
-  final SettingService settingService = Locator<SettingService>();
-  static Logger logger = Logger();
-  late final RtcEngine engine;
-  AgoraBaseService() {
-    engine = createAgoraRtcEngine();
-  }
+  final SettingService settingService;
+  // static Logger logger = Logger();
+  final RtcEngine engine;
+  AgoraBaseService()
+      : engine = createAgoraRtcEngine(),
+        settingService = Locator<SettingService>();
 
   int _state = 0;
   int get status => _state;
@@ -90,18 +89,18 @@ abstract class AgoraBaseService {
   ClientRoleType get clientRole;
   Future<void> ready() async {
     assert(status == 1 || _handler != null);
-
-    logger.i("Ready");
+    _state = 2;
+    // logger.i("Ready");
     engine.registerEventHandler(_handler!);
     await engine.setClientRole(role: clientRole);
+    await engine.enableAudio();
     if (clientRole == ClientRoleType.clientRoleAudience) {
       final setting = await settingService.Read();
       _withSound = setting.isSound;
       await _audio();
     }
 
-    _state = 2;
-    logger.i(status);
+    // logger.i(status);
   }
 
   Future<void> _audio() async {
@@ -125,7 +124,7 @@ abstract class AgoraBaseService {
     this.uid = uid!;
     this.token = token;
     assert(status == 2);
-    logger.i("Live");
+    // logger.i("Live");
     this.channel = channel;
     await engine.joinChannel(
         token: token,
@@ -142,7 +141,7 @@ abstract class AgoraBaseService {
     print("assert $status");
     assert(status == 0);
     print("init state");
-    logger.i("ini");
+    // logger.i("ini");
     await requestPermission();
     await engine.initialize(RtcEngineContext(
         appId: appid,
@@ -160,7 +159,7 @@ abstract class AgoraBaseService {
     _handler = RtcEngineEventHandler(
       //Live Start
       onUserJoined: (conn, remoteUid, _) {
-        logger.i("[stream:onUserJoined] [conn] $conn\n[remoteUid] $remoteUid");
+        // logger.i("[stream:onUserJoined] [conn] $conn\n[remoteUid] $remoteUid");
         connection = AgoraLiveConnection(connection: conn, remoteId: remoteUid);
         onLive.sink.add(connection);
         h.onUserJoined(conn, remoteUid, _);
@@ -168,39 +167,39 @@ abstract class AgoraBaseService {
       //Live Stop
 
       onUserOffline: (conn, uid, reason) {
-        logger.d(
-            "[stream:onUserOffline] [conn] $conn\n[uid] $uid\n[reason] $reason");
+        // logger.d(
+        //     "[stream:onUserOffline] [conn] $conn\n[uid] $uid\n[reason] $reason");
         h.onUserOffline(conn, uid, reason);
       },
       //Live Stop
 
       onTokenPrivilegeWillExpire: (conn, token) {
-        logger.d(
-            "[stream:onTokenPrivilegeWillExpire] [conn] $conn\n[token] $token");
+        // logger.d(
+        //     "[stream:onTokenPrivilegeWillExpire] [conn] $conn\n[token] $token");
         h.onTokenPrivilegeWillExpire(conn, token);
       },
 
       ///View Count ++
       onJoinChannelSuccess: (conn, uid) {
-        logger.i("[stream:onJoinChannelSuccess] [conn] $conn\n[uid] $uid");
+        // logger.i("[stream:onJoinChannelSuccess] [conn] $conn\n[uid] $uid");
         h.onJoinChannelSuccess(conn, uid);
       },
 
       ///View Count ++
       onRejoinChannelSuccess: (conn, _) {
-        logger.i("[stream:onRejoinChannelSuccess] [conn] $conn");
+        // logger.i("[stream:onRejoinChannelSuccess] [conn] $conn");
         h.onRejoinChannelSuccess(conn, _);
       },
 
       ///View Count --
       onLeaveChannel: (conn, stats) {
-        logger.i("[stream:onLeaveChannel] [conn] $conn\n[stats] $status");
+        // logger.i("[stream:onLeaveChannel] [conn] $conn\n[stats] $status");
         h.onLeaveChannel(conn, stats);
       },
 
       ///Ui
       onError: (code, str) {
-        logger.e("[stream:onError] [code] $code\n[str] $str");
+        // logger.e("[stream:onError] [code] $code\n[str] $str");
         h.onError(code, str);
       },
     );

@@ -257,7 +257,7 @@ class SwitchCard<T> extends StatelessWidget {
       ),
       child: ListTile(
         title: Text(
-          "Theme",
+          title,
           style: TextStyle(
             color: textColor,
           ),

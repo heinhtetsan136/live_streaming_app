@@ -131,15 +131,17 @@ class PostCard extends StatelessWidget {
                   children: [
                     Text(
                       post.displayName,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 15,
+                        color: theme.textTheme.bodyLarge?.color,
                       ),
                     ),
                     Text(
                       DateTime.now().differenceTimeInString(post.createdAt),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w400,
+                        color: theme.textTheme.bodyLarge?.color,
                       ),
                     )
                   ],
@@ -159,9 +161,10 @@ class PostCard extends StatelessWidget {
                 0,
                 contentLength > 200 ? 200 : contentLength,
               ),
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w400,
+                color: theme.textTheme.bodyLarge?.color,
               ),
             ),
           ),

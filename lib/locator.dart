@@ -25,10 +25,12 @@ Future<void> setup() async {
     // appleProvider: AppleProvider.debug,
     // webProvider: ReCaptchaV3Provider(kWebRecaptchaSiteKey),
   );
-  Locator.registerLazySingleton(() => AuthService());
   Locator.registerLazySingleton(() => FirebaseStorage.instance);
   Locator.registerLazySingleton(() => FirebaseFirestore.instance);
   Locator.registerLazySingleton(() => ImagePicker());
+  final dio = Dio();
+  Locator.registerLazySingleton(() => dio);
+  Locator.registerLazySingleton(() => AuthService());
 
   Locator.registerLazySingleton(() => SettingService());
 
@@ -37,8 +39,6 @@ Future<void> setup() async {
   Locator.registerLazySingleton<AgoraHostService>(() => Agorahostservice);
   Locator.registerLazySingleton<AgoraGuestService>(() => Agoraguestservice);
 
-  final dio = Dio();
-  Locator.registerLazySingleton(() => dio);
   Locator.registerLazySingleton(() => SearchPostService());
   Locator.registerLazySingleton(() => PostService());
   Locator.registerLazySingleton(() => MyPostService());

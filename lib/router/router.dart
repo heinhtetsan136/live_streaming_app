@@ -7,6 +7,7 @@ import 'package:live_streaming/controller/live_stream_controller/impl/host_contr
 import 'package:live_streaming/controller/live_view-controller/live_view_cubit.dart';
 import 'package:live_streaming/locator.dart';
 import 'package:live_streaming/posts/post_bloc.dart';
+import 'package:live_streaming/posts/search_bloc.dart';
 import 'package:live_streaming/router/route_name.dart';
 import 'package:live_streaming/screen/auth_screen.dart';
 import 'package:live_streaming/screen/home/home_screen_base.dart';
@@ -157,7 +158,8 @@ Widget _buildHomePage() {
     providers: [
       BlocProvider(create: (_) => HomePageBloc()),
       BlocProvider(create: (_) => PostBloc()),
-      BlocProvider(create: (_) => MyPostBloc())
+      BlocProvider(create: (_) => MyPostBloc()),
+      BlocProvider(create: (_) => SearchBloc()),
     ],
     child: const HomeScreen(),
   );

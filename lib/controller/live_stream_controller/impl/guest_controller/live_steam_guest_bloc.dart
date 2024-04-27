@@ -9,22 +9,22 @@ import 'package:live_streaming/service/ui_live_strem/impl/live_stream_guest%20_s
 import 'package:live_streaming/service/ui_live_strem/model/livepayload.dart';
 import 'package:logger/logger.dart';
 
-class LiveStreamGuestBloc
-    extends LiveStreamBaseBloc<LiveStreamBaseEvent, LiveStreamBaseState> {
+class LiveStreamGuestBloc extends LiveStreamBaseBloc<LiveStreamBaseState> {
   static final _logger = Logger();
+
   @override
   final AgoraBaseService agoraBaseService;
   @override
   final LiveStreamGuestService service;
   LiveStreamGuestBloc(this.service, LivePayload payload, this.agoraBaseService)
       : super(const LiveStreamGuestInitialState(), service, agoraBaseService) {
-    super.payload = payload;
+    paload = payload;
 
     on<LiveStreamGuestSendComment>((_, emit) async {
       final comment = controller.text;
       if (comment.isEmpty) return;
       controller.clear();
-      final result = await service.sendcomment(comment, super.payload!.liveID);
+      final result = await service.sendcomment(comment, livePayload!.liveID);
       _logger.i("comment $result");
       if (result.hasError) {
         Fluttertoast.showToast(msg: result.error!.messsage.toString());
@@ -43,9 +43,8 @@ class LiveStreamGuestBloc
         return;
       }
       print("guest bloc ${token.data['uid']},${token.data["token"]}");
-      super.payload =
-          payload.updateToken(token.data['uid'], token.data['token']);
-      service.join(super.payload!.liveID);
+      paload = payload.updateToken(token.data['uid'], token.data['token']);
+      service.join(livePayload!.liveID);
     });
     add(const LiveStreamGuestJoinEvent());
   }

@@ -7,7 +7,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:live_streaming/core/error/error.dart';
 import 'package:live_streaming/core/model/result.dart';
 import 'package:live_streaming/locator.dart';
-import 'package:live_streaming/service/agora_sevice/base/agora_base_service.dart';
 
 class AuthService {
   final FirebaseAuth _auth;
@@ -47,10 +46,10 @@ class AuthService {
     try {
       final UserCredential result =
           await _auth.signInWithCredential(credential);
-      Locator<FirebaseAuth>()
-          .currentUser
-          ?.getIdToken()
-          .then((value) => AgoraBaseService.logger.d(value ?? ""));
+      // Locator<FirebaseAuth>()
+      //     .currentUser
+      //     ?.getIdToken()
+      //     .then((value) => AgoraBaseService.logger.d(value ?? ""));
       return Result(data: result);
     } on FirebaseAuthException catch (e) {
       return Result(error: GeneralError(e.code, e.stackTrace));
